@@ -1,0 +1,212 @@
+.gauge {
+    width: 300px;
+    max-width: 250px;
+    margin:0px 20px 60px 60px;
+    font-family: "Roboto", sans-serif;
+    font-size: 32px;
+    color: #004033;
+  }
+  .gauge__body {
+    width: 100%;
+    height: 0;
+    padding-bottom: 50%;
+    background: #b4c0be;
+    position: relative;
+    border-top-left-radius: 100% 200%;
+    border-top-right-radius: 100% 200%;
+    overflow: hidden;
+  }
+  .gauge__fill {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: inherit;
+    height: 100%;
+    background: #009578;
+    transform-origin: center top;
+    transform: rotate(0.25turn);
+    transition: transform 0.2s ease-out;
+  }
+  .gauge__cover {
+    width: 75%;
+    height: 150%;
+    background: #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    /* Text */
+    display: flex;
+    padding:17px 0px 0px 0px;
+    justify-content: center;
+    font-size:19px;
+    box-sizing: border-box;
+  }
+  .dispositivo
+  {
+    height:30px;
+    position:absolute;
+    display: grid;
+    color:black;
+    font-size:20px;
+    border-radius: 8px;
+    top:50%;
+    left:34%;
+  }
+  .odometro
+  {
+    height:25px;
+    border:solid;
+    position:absolute;
+    display: grid;
+    background-color:black;
+    color:white;
+    font-size:16px;
+    border-radius: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 5px;
+    grid-auto-rows: minmax(100px, auto);
+    top:68%;
+    left:30%;
+  }
+  .o_val1{
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .o_val2{
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .o_val3{
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .o_val4{
+    grid-column: 4;
+    grid-row: 1;
+  }
+  .o_val5{
+    grid-column: 5;
+    grid-row: 1;
+  }
+  .o_val6{
+    grid-column: 6;
+    grid-row: 1;
+    color:red;
+  }
+  .circle {
+    display: inline-block;
+    border-radius: 60px;
+    box-shadow: 0px 0px 2px #888;
+    padding: 0.3em 0.3em;
+  }
+  .circle_gps {
+    width: 10px;
+    height: 10px;
+    background: green;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    position: absolute;
+  }
+  .circle_gps::before, .circle_gps::after {
+    content:"";
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    border: 10px solid gray;
+    border-radius:100%;
+    animation: latido linear 3s infinite;
+  }
+  .circle_gps::before, .circle_gps::after {
+    animation: latido linear 3s infinite;
+  }
+  .circle_gps::after {
+    animation-delay: -1.5s;
+  }
+  @keyframes latido {
+    0% { width:15px; height:15px; border:5px solid rgb(49,222, 5); }
+    100% { width:30px; height:30px; border:5px solid transparent; }
+  }
+  .circle_gps {
+    width: 10px;
+    height: 10px;
+    background: green;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    position: absolute;
+  }
+  .circle_gps::before, .circle_gps::after {
+    content:"";
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    border: 10px solid gray;
+    border-radius:100%;
+    animation: latido linear 3s infinite;
+  }
+  .circle_gps::before, .circle_gps::after {
+    animation: latido linear 3s infinite;
+  }
+  .circle_gps::after {
+    animation-delay: -1.5s;
+  }
+  @keyframes latido {
+    0% { width:15px; height:15px; border:5px solid rgb(49,222, 5); }
+    100% { width:30px; height:30px; border:5px solid transparent; }
+  }
+  .circle_gps_red {
+    width: 10px;
+    height: 10px;
+    background: red;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
+    position: absolute;
+  }
+  .circle_gps_red::before, .circle_gps_red::after {
+    content:"";
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform:translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    border: 10px solid gray;
+    border-radius:100%;
+    animation: latido_red linear 3s infinite;
+  }
+  .circle_gps_red::before, .circle_gps_red::after {
+    animation: latido_red linear 3s infinite;
+  }
+  .circle_gps_red::after {
+    animation-delay: -1.5s;
+  }
+  @keyframes latido_red {
+    0% { width:15px; height:15px; border:5px solid rgb(222,49, 5); }
+    100% { width:30px; height:30px; border:5px solid transparent; }
+  }
+  #button-0 { top: 10px; right: 28px; }
+  .info-box-wrap {
+  background:#fff;
+  overflow: hidden;
+  ;
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.08);
+  }
+  .info-box-text-wrap {
+  height:25px !important;
+  text-align: center;
+  padding-top:5px;
+  font-size:9.5pt;
+  width:80px;
+  float:left;
+  overflow: hidden;
+  }
