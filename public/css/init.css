@@ -1,0 +1,65 @@
+a[href^="http://maps.google.com/maps"]
+{
+    display: none !important;
+}
+
+a[href^="https://maps.google.com/maps"]
+{
+    display: none !important;
+}
+
+.gmnoprint a,
+.gmnoprint span,
+.gm-style-cc {
+    display: none;
+}
+
+.gmnoprint div {
+    background: none !important;
+}
+tr:hover {
+    background-color: rgb(230, 225, 225);
+}
+.circulo {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: green;
+    position: relative;
+    left:50%;
+    top:10px;
+
+}
+.leyenda{
+     background-color: white;
+     width: 600px;
+     height:20px;
+}
+.padre{
+     display:grid;
+    grid-template-columns: repeat(10, 1fr);
+    width:280px;
+}
+.one,.two,.three,.four{
+  grid-row:1;
+
+  
+}
+.one
+{
+ grid-column-start: 1;
+  grid-column-end:2;
+}
+.two
+{
+  grid-column-start: 2;
+  grid-column-end: 8;
+}
+.three{
+  grid-column-start: 8;
+  grid-column-end: 10;
+}
+.four{
+ grid-column-start: 10;
+  grid-column-end: 11;
+}
