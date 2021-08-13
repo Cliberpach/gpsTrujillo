@@ -11,7 +11,7 @@
     <link rel="icon" href="{{Storage::url(empresacolor()->ruta_logo_icon)}}" />
     @else
     
-    <link rel="icon" href="{{asset('img/e.png')}}" />
+    <link rel="icon" href="{{asset('img/logoI_png.png')}}" />
     @endif
     <link href="{{asset('Inspinia/css/bootstrap.min.css')}}" rel="stylesheet">
     <link href="{{asset('Inspinia/font-awesome/css/font-awesome.css')}}" rel="stylesheet">
@@ -105,7 +105,7 @@
                                            <h4 >Movimiento</h4>
                                          </div>
                                        <div class="col-lg-9 col-md-9" >
-                                       <img src="img/car-side.svg" class="filter-green" width="25px" id="button-0" style="position: absolute;left:110px;"/>
+                                    
                                        </div>
                                    </div>
                                    <div class="row">
@@ -113,7 +113,7 @@
                                            <h4 >Sin Movimiento</h4>
                                          </div>
                                        <div class="col-lg-8 col-md-8" >
-                                       <img src="img/car-side_two.svg" class="filter-green" width="25px" id="button-0" style="position: absolute;left:95px;"/>
+                                    
                                        </div>
                                    </div>
                                    </div>
@@ -200,7 +200,10 @@
 
 
 
-
+    <script>
+    window.PUSHER_APP_KEY = '{{ config('broadcasting.connections.pusher.key') }}';
+    window.APP_DEBUG = {{ config('app.debug') ? 'true' : 'false' }};
+</script>
 <script  src="{{ asset('js/app.js') }}" ></script>
 <script>
   </script>
@@ -361,19 +364,19 @@ setInterval(notificaciones, 5000);
 
                 if(result[i].informacion==="Se desconecto la bateria")
                 {
-                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='https://aseguroperu.com/img/e.png' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/bateria.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
+                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='{{asset('img/e.png')}}' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/bateria.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
                 }
                 else if(result[i].informacion==="Aumento de la velocidad")
                 {
-                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='https://aseguroperu.com/img/e.png' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/exceso.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
+                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='{{asset('img/e.png')}}' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/exceso.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
                 }
                 else if(result[i].informacion==="Ocurrio una alerta de ayuda")
                 {
-                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='https://aseguroperu.com/img/e.png' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/ayuda.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
+                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='{{asset('img/e.png')}}' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/ayuda.png' width='70px' style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
                 }
                 else if(result[i].informacion==="fuera de rango")
                 {
-                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='https://aseguroperu.com/img/e.png' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/rango.png' width='70px'  style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
+                    cuerpo=cuerpo+"<li><a href='#' class='dropdown-item'><div><img src='{{asset('img/e.png')}}' width='40px'>"+" "+result[i].informacion+" "+result[i].placa+"  "+"<img src='https://aseguroperu.com/img/rango.png' width='70px'  style='margin:0px 0px 0px 20px;border-radius: 10%;float: right;'></div>"+tiempo+"</a></li><li class='dropdown-divider'></li>";
                 }
 		         
                 

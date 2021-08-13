@@ -20,12 +20,12 @@
     <div class="container-fluid">
         <div class="row" style="height:100vh;">
             @if(verificarempresaloginlarge())
-            <div class="col-lg-6 col-md-6 d-none d-md-block" style="height:100vh;background: url('{{Storage::url(empresacolor()->ruta_logo_large)}}');
-            background-size: cover;"></div>
+            <div class="col-lg-6 col-md-6 " style="height:100vh;background: url('{{Storage::url(empresacolor()->ruta_logo_large)}}');
+                 -moz-background-size: 100% 100%;-o-background-size: 100% 100%;-webkit-background-size: 100% 100%;background-size: 100% 100%;"></div>
             @else
 
-            <div class="col-lg-6 col-md-6 d-none d-md-block" style="height:100vh;background: url('/img/banner_ecovalle.jpeg');
-            background-size: cover;">
+            <div class="col-lg-6 col-md-6 " style="height:100vh;background: url('/img/logo_gps.png');
+            -moz-background-size: 100% 100%;-o-background-size: 100% 100%;-webkit-background-size: 100% 100%;background-size: 100% 100%;">
             </div>
             @endif
             <div class="col-lg-6 col-md-6 form-container" >
@@ -34,7 +34,7 @@
                         @if(verificarempresaloginicon())
                         <img src="{{Storage::url(empresacolor()->ruta_logo_icon)}}" width="200" class="img-responsive m-b">
                         @else
-                          <img src="{{asset('img/e.png')}}" width="200" class="img-responsive m-b">
+                          <img src="{{asset('img/logoI_gps.png')}}" width="200" class="img-responsive m-b">
                         @endif
                       
                     </div>

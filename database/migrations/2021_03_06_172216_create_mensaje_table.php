@@ -17,7 +17,7 @@ class CreateMensajeTable extends Migration
             $table->engine = 'InnoDB';
             $table->id();
             $table->string('asunto');
-            $table->string('mensaje');
+            $table->mediumText('mensaje');
             $table->string('ruta_logo')->nullable();
             $table->string('nombre_logo')->nullable();
             $table->longText('base64_logo')->nullable();

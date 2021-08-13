@@ -126,7 +126,7 @@ select.form-control:not([size]):not([multiple]) {
   /*Login*/
 
 .image-container{
-    background: url('/img/banner_ecovalle.jpeg');
+    background: url('/img/logo_gps.jpeg');
     background-size: cover;
 }
 

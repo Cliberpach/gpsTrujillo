@@ -10,7 +10,7 @@
   
   <link rel="icon" href="{{Storage::url(empresacolor()->ruta_logo_icon)}}" />
   @else
-  <link rel="icon" href="{{asset('img/e.png')}}" />
+  <link rel="icon" href="{{asset('img/logoI_gps.png')}}" />
   @endif
     <!-- Scripts -->
     <link href="{{asset('Inspinia/css/bootstrap.min.css')}}" rel="stylesheet">

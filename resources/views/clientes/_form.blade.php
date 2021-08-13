@@ -453,7 +453,8 @@
                     // Submit form input
                         form.submit();
            
-              } 
+              }
+              else
               {
             toastr.error('Falta agregar el mensaje para registrar clientes','Error');  
               }
