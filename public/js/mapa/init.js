@@ -3,7 +3,7 @@ map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: -8.1092027, lng: -79.0244529 },
     gestureHandling: "greedy",
     zoomControl: false,
-    mapTypeControl: false,
+    mapTypeControl: true,
     streetViewControl: false,
     fullscreenControl: false,
 });

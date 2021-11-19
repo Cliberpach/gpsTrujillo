@@ -107,7 +107,7 @@
             });
         });
     </script>
-    <script type="text/javascript" src="{{ asset('js/mapa/init.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/mapa/init.js').'?v='.rand() }}"></script>
     <script type="text/javascript" src="{{ asset('js/gps/gps.js').'?v='.rand() }}"></script>
     <script>
         @if(is_array(dispositivo_user(auth()->user())) || is_object(dispositivo_user(auth()->user())))

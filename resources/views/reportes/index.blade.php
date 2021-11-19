@@ -153,7 +153,7 @@
     </div>
     <div id="buttonRuta"
         style="background-color:white;width:40px;height:40px;border-radius:3px;
-                                                        display:none; margin:10px 10px 0px 0px;padding:5px;cursor: pointer;"
+                                                        display:none; margin:10px 10px 0px 10px;padding:5px;cursor: pointer;"
         onclick="rutahour()">
         <i class="fa fa-google-wallet fa-2x" aria-hidden="true"></i>
     </div>
@@ -303,7 +303,7 @@
                 },
                 gestureHandling: "greedy",
                 mapTypeControl: false,
-                fullscreenControl: false
+                fullscreenControl: true
             });
         }
         $(document).ready(function() {
@@ -554,7 +554,8 @@
         });
         async function agregar(returnValue) {
             $("#buttonRuta").css("display", "block");
-            map2.controls[google.maps.ControlPosition.RIGHT_TOP].push(document.getElementById("buttonRuta"));
+            map2.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById("buttonRuta"));
+
             data = returnValue;
             var data_reporte = [];
             var t = $('.dataTables-reporte').DataTable();

@@ -20,23 +20,23 @@ while (true) {
     if (in_array($server, $read_sockets)) {
         $new_client = stream_socket_accept($server);
         if ($new_client) {
-           // echo 'new connection: ' . stream_socket_get_name($new_client, true) . "\n";
+            // echo 'new connection: ' . stream_socket_get_name($new_client, true) . "\n";
             $client_sockets[] = $new_client;
             $Clientes[] = array('socket' => $new_client, 'imei' => " ", 'data' => " ");
         }
         unset($read_sockets[array_search($server, $read_sockets)]);
     }
     foreach ($read_sockets as $socket) {
-       // echo "SOCKET: ".$socket."\n";
-      //  $data = fread($socket, 256);
-       //echo gettype($socket);
-          $data = fread($socket,256);
+        // echo "SOCKET: ".$socket."\n";
+        //  $data = fread($socket, 256);
+        //echo gettype($socket);
+        $data = fread($socket, 256);
         //echo "data: " . $data . "\n";
         $tk103_data = explode(',', $data);
         $response = "";
         switch (count($tk103_data)) {
             case 1: // 864895031563388 -> heartbeat requires "ON" response
-                    $response = "ON";
+                $response = "ON";
                 //echo "sent ON to client\n";
                 break;
             case 3: // ##,imei:864895031563388,A -> this requires a "LOAD" response
@@ -62,16 +62,16 @@ while (true) {
                 $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
                 insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
                 insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei,$gps_fecha,$latitude,$longitude,$data);
+                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
                 if ($tk103_data[11] != "") {
                     insert_conexion($imei, "Conectado", "Movimiento", $data);
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
-                if ($latitude != 0.0 && $longitude != 0.0) {
-                   // verifi_range($imei, $latitude, $longitude, $data);
-                }
-                kilometraje($imei,$data);
+                // if ($latitude != 0.0 && $longitude != 0.0) {
+                //    // verifi_range($imei, $latitude, $longitude, $data);
+                // }
+                //kilometraje($imei,$data);
                 break;
             case 19:
                 $posicion_imei = strpos($tk103_data[0], ":");
@@ -90,16 +90,16 @@ while (true) {
                 $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
                 insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
                 insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei,$gps_fecha,$latitude,$longitude,$data);
-                if ($latitude != 0.0 && $longitude != 0.0) {
-                    //verifi_range($imei, $latitude, $longitude, $data);
-                }
+                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
+                // if ($latitude != 0.0 && $longitude != 0.0) {
+                //     //verifi_range($imei, $latitude, $longitude, $data);
+                // }
                 if ($tk103_data[11] != "") {
                     insert_conexion($imei, "Conectado", "Movimiento", $data);
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
-                kilometraje($imei,$data);
+                //kilometraje($imei,$data);
                 // if ($alarm == "help me") {
                 //     $response = "**,imei:" + $imei + ",E;";
                 //     insert_notificacion($imei, "Ocurrio una alerta de ayuda", "help me", $data);
@@ -121,19 +121,19 @@ while (true) {
                 $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
                 insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
                 insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei,$gps_fecha,$latitude,$longitude,$data);
-                if ($latitude != 0.0 && $longitude != 0.0) {
-                    //verifi_range($imei, $latitude, $longitude, $data);
-                }
+                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
+                // if ($latitude != 0.0 && $longitude != 0.0) {
+                //     //verifi_range($imei, $latitude, $longitude, $data);
+                // }
                 if (floatval($tk103_data[10]) > 0) {
                     insert_conexion($imei, "Conectado", "Movimiento", $data);
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
-                kilometraje($imei,$data);
+                //kilometraje($imei,$data);
                 break;
             default:
-               // echo $data;
+                // echo $data;
         }
         if (!$data) {
             $imei_gps = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
@@ -151,37 +151,35 @@ while (true) {
         }
     }
 }
-function actualizar_ruta_db($imei,$gps_time,$latitude, $longitude, $data)
+function actualizar_ruta_db($imei, $gps_time, $latitude, $longitude, $data)
 {
     $servername = "localhost";
     $username = "usuario";
     $password = 'gps12345678';
     $dbname = "gpstracker";
     $time = new DateTime($gps_time);
-    $time->sub(new DateInterval('PT' .'15'. 'M'));
+    $time->sub(new DateInterval('PT' . '15' . 'M'));
     $fechaantes = $time->format('Y-m-d H:i');
-    try{
+    try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $sql = "delete from ubicacion_recorrido where imei='" . $imei . "';";
         $conn->query($sql);
-                $query="select * from ubicacion where imei='" . $imei . "' and fecha>='".$fechaantes."'";
-                    foreach ($conn->query($query) as $fila) {
-                    $params = array(
-                        ':imei'     => $fila['imei'],
-                        ':cadena'     => $fila['cadena'],
-                        ':fecha' => $fila['fecha'],
-                        ':lat'     => $fila['lat'],
-                        ':lng'        => $fila['lng'],
-                        ':direccion'=>$fila['direccion']
-                    );
-                    $insert = $conn->prepare("INSERT INTO ubicacion_recorrido(imei,lat,lng,cadena,fecha,direccion) VALUES (:imei,:lat,:lng,:cadena,:fecha,:direccion)");
-                    $insert->execute($params);
-                }
-    }
-    catch(PDOException $e)
-    {
-        echo "error a la actualizacion de la ruta ".$e." \n";
+        $query = "select * from ubicacion where imei='" . $imei . "' and fecha>='" . $fechaantes . "'";
+        foreach ($conn->query($query) as $fila) {
+            $params = array(
+                ':imei'     => $fila['imei'],
+                ':cadena'     => $fila['cadena'],
+                ':fecha' => $fila['fecha'],
+                ':lat'     => $fila['lat'],
+                ':lng'        => $fila['lng'],
+                ':direccion' => $fila['direccion']
+            );
+            $insert = $conn->prepare("INSERT INTO ubicacion_recorrido(imei,lat,lng,cadena,fecha,direccion) VALUES (:imei,:lat,:lng,:cadena,:fecha,:direccion)");
+            $insert->execute($params);
+        }
+    } catch (PDOException $e) {
+        echo "error a la actualizacion de la ruta " . $e . " \n";
     }
 }
 function insert_ubicacion_db($imei, $gps_time, $latitude, $longitude, $cadena)
@@ -245,7 +243,7 @@ function verifi_range($imei, $latitude, $longitude, $data)
         $query = "select cr.id from dispositivo as d inner join detallecontrato as dc on dc.dispositivo_id=d.id inner join contrato as c on c.id=dc.contrato_id inner join contratorango as cr on cr.contrato_id=c.id where d.imei='" . $imei . "';";
         foreach ($conn->query($query) as $fila) {
             $polygon = array();
-            $query_two = "select dc.lat,dc.lng from detalle_contratorango as dc inner join contratorango as c on dc.contratorango_id=c.id where c.id='".$fila['id']."';";
+            $query_two = "select dc.lat,dc.lng from detalle_contratorango as dc inner join contratorango as c on dc.contratorango_id=c.id where c.id='" . $fila['id'] . "';";
             foreach ($conn->query($query_two) as  $Fila) {
                 array_push($polygon, array($Fila['lat'], $Fila['lng']));
             }
@@ -448,22 +446,25 @@ function insert_location_into_db($imei, $gps_time, $latitude, $longitude, $caden
         $query = $conn->prepare("INSERT INTO ubicacion(imei,lat,lng,cadena,fecha) VALUES (:imei,:lat,:lng,:cadena,:fecha)");
         $query->execute($params);
         $query = "select * from dispositivo  where imei='" . $imei . "' and sutran='SI' ";
-        if($latitude!=0 || $longitude!=0)
-        {
+        if ($latitude != 0 || $longitude != 0) {
             foreach ($conn->query($query) as $fila) {
-                $velocidad_km =0;
+                $velocidad_km = 0;
                 $arreglo_cadena = explode(',', $cadena);
-                if ($fila['nombre']== "TRACKER303") {
+                if ($fila['nombre'] == "TRACKER303") {
 
 
                     $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
                     $velocidad_km = sprintf("%.2f", $velocidad_km);
+                } elseif ($fila['nombre'] == "MEITRACK") {
 
-            } else if ($fila['nombre'] == "MEITRACK") {
+                    $velocidad_km = floatval($arreglo_cadena[10]);
+                    $velocidad_km = sprintf("%.2f", $velocidad_km);
+                }
+                elseif($fila['nombre'] == "TELTONIKA12O") {
 
-                $velocidad_km = floatval($arreglo_cadena[10]);
-                $velocidad_km = sprintf("%.2f", $velocidad_km);
-            }
+                    $velocidad_km = floatval($arreglo_cadena[3]);
+                }
+
                 $params = array(
                     ':placa'     => $fila['placa'],
                     ':latitud'        => $latitude,
@@ -480,9 +481,6 @@ function insert_location_into_db($imei, $gps_time, $latitude, $longitude, $caden
                 $insert->execute($params);
             }
         }
-
-
-
     } catch (PDOException $e) {
         echo 'Excepción capturada: insertar location ',  $e->getMessage(), "\n";
     }
@@ -567,7 +565,7 @@ function enviar_dispositivo($token, $placa, $telefono, $alerta, $image)
         echo 'Excepción capturada: firebase ',  $e->getMessage(), "\n";
     }
 }
-function kilometraje($imei,$data)
+function kilometraje($imei, $data)
 {
     // $servername = "localhost";
     // $username = "usuario";
@@ -594,7 +592,7 @@ function kilometraje($imei,$data)
     //                 $suma = $suma + $response;
     //             }
     //         }
-          
+
     //         $km_inicial=$dispositivo['km_inicial'];
     //         echo $km_inicial;
     //         if($km_inicial!=0)
@@ -636,26 +634,33 @@ function kilometraje($imei,$data)
     // }
     // $conn = null;
 }
-function computeDistanceBetween($from,$to)
+function computeDistanceBetween($from, $to)
 {
     return computeAngleBetween($from, $to) * 6371009;
 }
 function computeAngleBetween($from, $to)
 {
-    return distanceRadians(deg2rad($from['lat']), deg2rad($from['lng']),
-    deg2rad($to['lat']), deg2rad($to['lng']));
+    return distanceRadians(
+        deg2rad($from['lat']),
+        deg2rad($from['lng']),
+        deg2rad($to['lat']),
+        deg2rad($to['lng'])
+    );
 }
-function distanceRadians( $lat1,  $lng1,  $lat2,  $lng2) {
+function distanceRadians($lat1,  $lng1,  $lat2,  $lng2)
+{
     return arcHav(havDistance($lat1, $lat2, $lng1 - $lng2));
 }
 function arcHav($x)
 {
     return 2 * asin(sqrt($x));
 }
-function havDistance($lat1, $lat2, $dLng) {
+function havDistance($lat1, $lat2, $dLng)
+{
     return hav($lat1 - $lat2) + hav($dLng) * cos($lat1) * cos($lat2);
 }
- function hav($x) {
+function hav($x)
+{
     $sinHalf = sin($x * 0.5);
     return $sinHalf * $sinHalf;
 }

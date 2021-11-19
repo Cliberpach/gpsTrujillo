@@ -97,7 +97,7 @@ class DispositivoController extends Controller
         $dispositivo->imei = $request->imei;
         $dispositivo->nrotelefono = $request->nrotelefono;
         $dispositivo->operador = $request->operador;
-        $dispositivo->cliente_id =$request->cliente;
+        $dispositivo->cliente_id = $request->cliente;
         $dispositivo->placa = $request->placa;
         $dispositivo->color = $request->color;
         $dispositivo->modelo = $request->modelo;
@@ -105,10 +105,10 @@ class DispositivoController extends Controller
 
         $dispositivo->pago = $request->pago;
         $dispositivo->activo = $request->activo;
-        $dispositivo->sutran=$request->sutran;
-        $dispositivo->km_inicial=$request->km_inicial;
-        $dispositivo->km_actual= $request->km_inicial;
-        $dispositivo->km_aumento=$request->km_aumento;
+        $dispositivo->sutran = $request->sutran;
+        $dispositivo->km_inicial = $request->km_inicial;
+        $dispositivo->km_actual = $request->km_inicial;
+        $dispositivo->km_aumento = $request->km_aumento;
         $dispositivo->save();
         if ($request->alerta_tabla != "[]" && $request->alerta_tabla != "") {
 
@@ -212,7 +212,7 @@ class DispositivoController extends Controller
         $dispositivo->imei = $request->imei;
         $dispositivo->nrotelefono = $request->nrotelefono;
         $dispositivo->operador = $request->operador;
-        $dispositivo->cliente_id =$request->cliente;
+        $dispositivo->cliente_id = $request->cliente;
         $dispositivo->placa = $request->placa;
         $dispositivo->color = $request->color;
         $dispositivo->modelo = $request->modelo;
@@ -220,10 +220,10 @@ class DispositivoController extends Controller
 
         $dispositivo->pago = $request->pago;
         $dispositivo->activo = $request->activo;
-        $dispositivo->sutran=$request->sutran;
-        $dispositivo->km_inicial=$request->km_inicial;
-        $dispositivo->km_actual= $request->km_inicial;
-        $dispositivo->km_aumento=$request->km_aumento;
+        $dispositivo->sutran = $request->sutran;
+        $dispositivo->km_inicial = $request->km_inicial;
+        $dispositivo->km_actual = $request->km_inicial;
+        $dispositivo->km_aumento = $request->km_aumento;
         $dispositivo->update();
 
         if ($request->alerta_tabla != "[]" && $request->alerta_tabla != "") {
@@ -374,7 +374,7 @@ class DispositivoController extends Controller
                 $ubicaciones = [];
                 if ($dispositivo->nombre == "TRACKER 103B") {
                     $ubicaciones = DB::select(DB::raw("select * from (select *,SUBSTRING_INDEX(SUBSTRING_INDEX(t.cadena,',',2),',',-1) as bateria,SUBSTRING_INDEX(SUBSTRING_INDEX(t.cadena,',',13),',',-1) as apagado,SUBSTRING_INDEX(SUBSTRING_INDEX(t.cadena,',',15),',',-1) as prendido from (select * from ubicacion) as t where t.imei='" . $dispositivo->imei . "' and t.lat!='0' and t.lng!='0' ) as m where m.bateria!='acc off%' and m.apagado!='0' and m.apagado!=' '"));
-                } else if ($dispositivo->nombre == "MEITRACK") {
+                } elseif ($dispositivo->nombre == "MEITRACK") {
                     $ubicaciones = DB::select(DB::raw("select * from (select *,SUBSTRING_INDEX(SUBSTRING_INDEX(t.cadena,',',4),',',-1) as evento from (select * from ubicacion) as t where t.imei='" . $dispositivo->imei . "' and t.lat!='0' and t.lng!='0' ) as m where m.evento!='41'"));
                 }
                 $suma = 0.0;
@@ -466,10 +466,12 @@ class DispositivoController extends Controller
                         $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
                         $velocidad_km = $velocidad_km . " kph";
                     }
-                } else if ($dispositivo->nombre == "MEITRACK") {
+                } elseif ($dispositivo->nombre == "MEITRACK") {
                     $arreglo_cadena = explode(',', $consulta->cadena);
-
                     $velocidad_km = floatval($arreglo_cadena[10]) . " kph";
+                } elseif ($dispositivo->nombre == "TELTONIKA12O") {
+                    $arreglo_cadena = explode(',', $consulta->cadena);
+                    $velocidad_km = floatval($arreglo_cadena[3]) . " kph";
                 }
                 $dispositivo_array["velocidad"] = $velocidad_km;
                 $dispositivo_array["estado"] = "data";
@@ -482,31 +484,39 @@ class DispositivoController extends Controller
     {
         $response =  \GeometryLibrary\SphericalUtil::computeHeading(
             ['lat' => -8.411392, 'lng' => -78.803548], // from array [lat, lng]
-            ['lat' => -8.415631, 'lng' =>-78.789221]); // to array [lat, lng]
+            ['lat' => -8.415631, 'lng' => -78.789221]
+        ); // to array [lat, lng]
         echo $response;
     }
     public function gpsestado(Request $request)
     {
-        $user = Auth::user();
         $arreglo = array();
+        if (Auth::user()) {
+            $user = Auth::user();
+            $dispositivos = dispositivo_user($user);
+            foreach ($dispositivos as $dispositivo) {
+                $valor = DB::table('estadodispositivo')->where('cadena', 'like', '%' . $dispositivo->imei . '%')->orderByDesc('fecha')->first();
 
-        $dispositivos = dispositivo_user($user);
-        foreach ($dispositivos as $dispositivo) {
-            $valor = DB::table('estadodispositivo')->where('cadena', 'like', '%' . $dispositivo->imei . '%')->orderByDesc('fecha')->first();
-
-            if ($valor != "") {
-                $valor = DB::table('estadodispositivo')->where('imei', 'like', '%' . $dispositivo->imei . '%')->orderByDesc('fecha')->first();
-                if ($valor->estado == "Desconectado") {
-                    $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => "Desconectado", 'movimiento' => "Sin Movimiento");
+                if ($valor != "") {
+                    $valor = DB::table('estadodispositivo')->where('imei', 'like', '%' . $dispositivo->imei . '%')->orderByDesc('fecha')->first();
+                    if ($valor->estado == "Desconectado") {
+                        $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => "Desconectado", 'movimiento' => "Sin Movimiento");
+                    } else {
+                        $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => $valor->estado, 'movimiento' => $valor->movimiento);
+                    }
                 } else {
-                    $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => $valor->estado, 'movimiento' => $valor->movimiento);
+                    $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => "Desconectado", 'movimiento' => "Sin Movimiento");
                 }
-            } else {
-                $arreglo[] = array('imei' => $dispositivo->imei, 'estado' => "Desconectado", 'movimiento' => "Sin Movimiento");
             }
+            return array("success"=>true,"data"=>json_encode($arreglo));
+        } else {
+            return array("success"=>false,"data"=>json_encode($arreglo));
         }
 
-        return json_encode($arreglo);
+
+
+
+
     }
     public function verificardispositivo(Request $request)
     {
@@ -528,56 +538,60 @@ class DispositivoController extends Controller
     public function ruta(Request $request)
     {
         $data = array();
-        $fila = DB::table('ubicacion_recorrido as ur')->join('dispositivo as d','d.imei','=','ur.imei')
-                            ->select('ur.*','d.nombre','d.placa')
-                            ->where('ur.imei', $request->imei)->orderBy('ur.fecha', 'asc')->get();
+        $fila = DB::table('ubicacion_recorrido as ur')->join('dispositivo as d', 'd.imei', '=', 'ur.imei')
+            ->select('ur.*', 'd.nombre', 'd.placa')
+            ->where('ur.imei', $request->imei)->orderBy('ur.fecha', 'asc')->get();
         for ($i = 0; $i < count($fila); $i++) {
 
             $arreglo_cadena = explode(',', $fila[$i]->cadena);
-            $velocidad_km="0 kph";
-            $altitud="0 Metros";
-            $odometro="0 Km";
-            $nivelCombustible="0%";
-            $volumenCombustible="0.0 gal";
-            $horaDelMotor="0.0";
-            $intensidadSenal="0.0";
-            $estado="Sin Movimiento";
+            $velocidad_km = "0 kph";
+            $altitud = "0 Metros";
+            $odometro = "0 Km";
+            $nivelCombustible = "0%";
+            $volumenCombustible = "0.0 gal";
+            $horaDelMotor = "0.0";
+            $intensidadSenal = "0.0";
+            $estado = "Sin Movimiento";
 
             if ($fila[$i]->nombre == "TRACKER303") {
 
 
-                    $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
-                    $vkm=$velocidad_km;
-                    $estado=($velocidad_km<=0)?$estado:"En Movimiento";
-                    $velocidad_km = sprintf("%.2f", $velocidad_km). " kph";
-
+                $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                $vkm = $velocidad_km;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             } else if ($fila[$i]->nombre == "MEITRACK") {
 
                 $velocidad_km = floatval($arreglo_cadena[10]);
-                $vkm=$velocidad_km;
-                $estado=($velocidad_km<=0)?$estado:"En Movimiento";
+                $vkm = $velocidad_km;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                 $altitud = $arreglo_cadena[13];
-                $velocidad_km = sprintf("%.2f", $velocidad_km). " kph";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+            } elseif ($fila[$i]->nombre == "TELTONIKA12O") {
+                $velocidad_km = floatval($arreglo_cadena[3]);
+                $vkm = $velocidad_km;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             }
 
-            if($vkm>2)
-            {
-                array_push($data, array("placa"=>$fila[$i]->placa,
-                "imei" => $fila[$i]->imei,
-                "estado"=>$estado,
-                "lat" => $fila[$i]->lat,
-                "intensidadSenal"=>$intensidadSenal,
-                "lng" => $fila[$i]->lng,
-                "fecha" => $fila[$i]->fecha,
-                "altitud" => $altitud,
-                "velocidad"=>$velocidad_km,
-                "nivelCombustible" =>$nivelCombustible,
-                "volumenCombustible" =>$volumenCombustible,
-                "horaDelMotor" =>$horaDelMotor,
-                "direccion"=>$fila[$i]->direccion,
-                "odometro"=>$odometro));
+            if ($vkm > 2) {
+                array_push($data, array(
+                    "placa" => $fila[$i]->placa,
+                    "imei" => $fila[$i]->imei,
+                    "estado" => $estado,
+                    "lat" => $fila[$i]->lat,
+                    "intensidadSenal" => $intensidadSenal,
+                    "lng" => $fila[$i]->lng,
+                    "fecha" => $fila[$i]->fecha,
+                    "altitud" => $altitud,
+                    "velocidad" => $velocidad_km,
+                    "nivelCombustible" => $nivelCombustible,
+                    "volumenCombustible" => $volumenCombustible,
+                    "horaDelMotor" => $horaDelMotor,
+                    "direccion" => $fila[$i]->direccion,
+                    "odometro" => $odometro
+                ));
             }
-
         }
         return $data;
     }

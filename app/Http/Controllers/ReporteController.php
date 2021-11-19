@@ -144,9 +144,17 @@ class ReporteController extends Controller
                         $estado = "Sin associar";
                         break;
                 }
-            } else if ($consulta[$i]->nombre == "TRACKER303") {
+            } elseif ($consulta[$i]->nombre == "TRACKER303") {
                 if (count($cadena) >= 11) {
                     $velocidad = floatval($cadena[11]) * 1.85;
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
                         $estado = "En movimiento";
                     }
@@ -304,6 +312,14 @@ class ReporteController extends Controller
                     }
                 }
             }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
             if ($alerta_dispositivo) {
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
@@ -421,6 +437,14 @@ class ReporteController extends Controller
                     }
                 }
             }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
             if ($response == true) {
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
@@ -524,13 +548,21 @@ class ReporteController extends Controller
                         $estado = "Sin associar";
                         break;
                 }
-            } else if ($consulta[$i]->nombre == "TRACKER303") {
+            } elseif ($consulta[$i]->nombre == "TRACKER303") {
                 if (count($cadena) >= 11) {
                     $velocidad = floatval($cadena[11]) * 1.85;
                     if ($velocidad != "0") {
                         $estado = "En movimiento";
                     } else {
                         $estado = "Sin movimiento";
+                    }
+                }
+            }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
                     }
                 }
             }
@@ -556,6 +588,94 @@ class ReporteController extends Controller
             ->join('clientes as cl', 'cl.id', '=', 'c.cliente_id')
             ->select('cl.*')
             ->where('e.id', $request->empresa)->get();
+    }
+    public function getmovimiento(Request $request)
+    {
+        $fechainicio = explode(' ', $request->fechainicio)[0];
+        $fechafinal = explode(' ', $request->fechafinal)[0];
+        $fechanow = strval(date("Y/n/d", time()));
+        $data = array();
+        
+        $consulta = DB::table('dispositivo as d')->where([['m.lat', '<>', '0'], ['lng', '<>', '0'], ['d.imei', '=', $request->dispositivo]])
+            ->whereBetween('m.fecha', [$request->fechainicio, $request->fechafinal]);
+        if (($fechainicio != $fechanow) && ($fechanow == $fechafinal)) {
+            $consulta_dos = $consulta->join('historial as m', 'm.imei', '=', 'd.imei');
+            $consulta = DB::table('dispositivo as d')->where([['m.lat', '<>', '0'], ['lng', '<>', '0'], ['d.imei', '=', $request->dispositivo]])
+                ->whereBetween('m.fecha', [$request->fechainicio, $request->fechafinal]);
+            $consulta = $consulta->join('ubicacion as m', 'm.imei', '=', 'd.imei')->union($consulta_dos)->orderByRaw('fecha DESC')->get();
+        } else if (($fechainicio == $fechafinal) && ($fechanow == $fechainicio)) {
+            $consulta = $consulta->join('ubicacion as m', 'm.imei', '=', 'd.imei')->get();
+        } else {
+            $consulta = $consulta->join('historial as m', 'm.imei', '=', 'd.imei')->get();
+        }
+        for ($i = 0; $i < count($consulta); $i++) {
+            $velocidad = 0;
+            $estado = "Sin movimiento";
+            $evento = "-";
+            $altitud = 0;
+            $cadena = explode(',', $consulta[$i]->cadena);
+            $marcador = "final";
+            if ($i < count($consulta) - 1) {
+                $marcador = SphericalUtil::computeDistanceBetween(
+                    ['lat' => $consulta[$i]->lat, 'lng' => $consulta[$i]->lng], //from array [lat, lng]
+                    ['lat' => $consulta[$i + 1]->lat, 'lng' => $consulta[$i + 1]->lng]
+                );
+            }
+            if ($consulta[$i]->nombre == "MEITRACK") {
+                $velocidad = $cadena[10];
+                $estado_gps = $cadena[3];
+                $altitud = $cadena[13];
+                $evento = $cadena[3];
+                switch ($estado_gps) {
+                    case 2:
+                    case 10:
+                    case 35:
+                        if ($velocidad != "0") {
+                            $estado = "movimiento";
+                        }
+                        break;
+                    case 22:
+                        $estado = "bateria conectada";
+                        break;
+                    case 23:
+                        $estado = "bateria desconectada";
+                        break;
+                    case 41:
+                        $estado = "Sin movimiento";
+                        break;
+                    case 42:
+                        $estado = "Arranque";
+                        break;
+                    case 120:
+                        $estado = "En movimiento";
+                        break;
+                    default:
+                        $estado = "Sin associar";
+                        break;
+                }
+            } elseif ($consulta[$i]->nombre == "TRACKER303") {
+                if (count($cadena) >= 11) {
+                    $velocidad = floatval($cadena[11]) * 1.85;
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
+            array_push($data, array(
+                "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
+                "velocidad" =>sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                "evento" => $evento
+            ));
+        }
+        return $data;
     }
     public function dispositivogeozonagrupo(Request $request)
     {
@@ -641,9 +761,17 @@ class ReporteController extends Controller
                         $estado = "Sin associar";
                         break;
                 }
-            } else if ($consulta[$i]->nombre == "TRACKER303") {
+            } elseif ($consulta[$i]->nombre == "TRACKER303") {
                 if (count($cadena) >= 11) {
                     $velocidad = floatval($cadena[11]) * 1.85;
+                    if ($velocidad != "0") {
+                        $estado = "En movimiento";
+                    }
+                }
+            }
+            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+                if (count($cadena) >= 1) {
+                    $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
                         $estado = "En movimiento";
                     }

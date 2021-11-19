@@ -17,18 +17,21 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::group(['middleware'=>'auth:api'], function(){
-    Route::get('/clientesgps','UsersController@clientes');
-    Route::get('/dispositivosgps','UsersController@dispositivos');
-    Route::get('/usertoken','UsersController@usertoken');
-    Route::get('/dispositivosprueba','UsersController@dispositivos_prueba');
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::get('/clientesgps', 'UsersController@clientes');
+    Route::get('/dispositivosgps', 'UsersController@dispositivos');
+    Route::get('/usertoken', 'UsersController@usertoken');
+    Route::get('/dispositivosprueba', 'UsersController@dispositivos_prueba');
     //mapas
-    Route::get('/notificaciones','MapaController@notificaciones');
-    Route::get('/notificacion_vista','MapaController@notificacion_vista');
+    Route::get('/notificaciones', 'MapaController@notificaciones');
+    Route::get('/notificacion_vista', 'MapaController@notificacion_vista');
+    Route::get('/reportemovimiento', 'ReporteController@getmovimiento');
+    Route::get('/recorrido_dispositivo', 'MapaController@ruta');
 });
 Route::group(['prefix' => 'v1'], function () {
     Route::post('/login', 'UsersController@login');
-    Route::get('/dispositivosgps','UsersController@dispositivosprueba');
-   // Route::post('/register', 'UsersController@register');
-   // Route::get('/logout', 'UsersController@logout')->middleware('auth:api');
-  });
+    Route::get('/dispositivosgps', 'UsersController@dispositivosprueba');
+    Route::get('/recorrido_dispositivo', 'MapaController@ruta');
+    // Route::post('/register', 'UsersController@register');
+    // Route::get('/logout', 'UsersController@logout')->middleware('auth:api');
+});
