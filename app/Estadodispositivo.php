@@ -8,11 +8,12 @@ class Estadodispositivo extends Model
 {
     protected $table = 'estadodispositivo';
     public $primaryKey = 'id';
-    protected $fillable = ['imei',
-                           'estado',
-                           'fecha',
-                           'movimiento',
-                           'cadena'
-                        ];
-                        public $timestamps = false;
+    protected $fillable = [
+        'imei',
+        'estado',
+        'fecha',
+        'movimiento',
+        'cadena'
+    ];
+    public $timestamps = false;
 }

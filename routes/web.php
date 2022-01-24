@@ -24,6 +24,7 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\RMapaController;
 use App\Http\Controllers\SutranController;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -150,6 +151,7 @@ Route::prefix('rangos')->group(function () {
 
 Route::prefix('mapas')->group(function () {
     Route::get('/', [MapaController::class, 'index'])->name('mapa.index')->middleware('auth');
+    Route::get('/nuevaUbicacion/{imei}',[MapaController::class,'nuevaUbicacion'])->name('mapa.nuevaUbicacion');
 });
 Route::prefix('empresa')->group(function () {
     Route::get('/', [EmpresaPersonalController::class, 'index'])->name('empresa.index')->middleware('auth');
@@ -201,7 +203,7 @@ Route::post('/gpsposicion', [DispositivoController::class, 'gpsposicion'])->name
 Route::get('/gpsprueba', [DispositivoController::class, 'prueba'])->name('pruebagps')->middleware('auth');
 Route::post('/gpsestado', [DispositivoController::class, 'gpsestado'])->name('gpsestado');
 Route::post('/gpsmovimiento', [DispositivoController::class, 'movimiento'])->name('gpsmovimiento');
-Route::post('/gpsruta', [DispositivoController::class, 'ruta'])->name('gpsruta');
+Route::get('/gpsruta', [DispositivoController::class, 'ruta'])->name('gpsruta');
 
 Route::prefix('reporte')->group(function () {
     Route::get('/', [ReporteController::class, 'index'])->name('reportes.index')->middleware('auth');
@@ -243,3 +245,4 @@ Route::prefix('rmapa')->group(function () {
     Route::post('/dispositivoruta', [RMapaController::class, 'dispositivoruta'])->name('rmapa.dispositivoruta');
     Route::post('/dispositivos', [RMapaController::class, 'dispositivos'])->name('rmapa.dispositivos');
 });
+

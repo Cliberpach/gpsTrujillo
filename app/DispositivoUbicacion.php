@@ -4,15 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UbicacionRecorrido extends Model
+class DispositivoUbicacion extends Model
 {
-    protected $table = 'ubicacion_recorrido';
+    protected $table = 'dispositivo_ubicacion';
     public $primaryKey = 'id';
     protected $fillable = [
         'imei',
         'lat',
         'lng',
-        'cadena'
+        'cadena',
+        'fecha'
     ];
-    public $timestamps = true;
 }

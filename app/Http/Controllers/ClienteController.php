@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 use App\User;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ClienteController extends Controller
 {
@@ -23,7 +25,7 @@ class ClienteController extends Controller
      */
     public function index()
     {
-         return view('clientes.index');
+        return view('clientes.index');
     }
 
     /**
@@ -35,7 +37,7 @@ class ClienteController extends Controller
     {
         $action = route('cliente.store');
         $cliente = new Cliente();
-        return view('clientes.create')->with(compact('action','cliente'));
+        return view('clientes.create')->with(compact('action', 'cliente'));
     }
 
     /**
@@ -50,8 +52,8 @@ class ClienteController extends Controller
 
         $rules = [
             'tipo_documento' => 'required',
-            'documento' => ['required','numeric', Rule::unique('clientes','documento')->where(function ($query) {
-                $query->whereIn('estado',["ACTIVO"]);
+            'documento' => ['required', 'numeric', Rule::unique('clientes', 'documento')->where(function ($query) {
+                $query->whereIn('estado', ["ACTIVO"]);
             })],
             'nombre_comercial' => 'required',
             'activo' => 'required',
@@ -72,60 +74,64 @@ class ClienteController extends Controller
             'nombre.required' => 'El Nombre es obligatorio',
             'telefono_movil.required' => 'El campo Teléfono móvil es obligatorio',
             'telefono_movil.numeric' => 'El campo Teléfono móvil debe ser numérico',
-            'direccion_fiscal.required'=>'El campo direccion es obligatorio',
-            'direccion.required'=>'El campo direccion es obligatorio',
+            'direccion_fiscal.required' => 'El campo direccion es obligatorio',
+            'direccion.required' => 'El campo direccion es obligatorio',
             'correo_electronico.required' => 'El campo Correo es Obligatorio',
         ];
 
         Validator::make($data, $rules, $messagev)->validate();
+        DB::beginTransaction();
+        try {
+            $cliente = new Cliente();
+            $cliente->tipo_documento = $request->tipo_documento;
+            $cliente->documento = $request->documento;
+            $cliente->nombre = $request->nombre;
+            $cliente->nombre_comercial = $request->nombre_comercial;
+            $cliente->activo = $request->activo;
+            $cliente->telefono_movil = $request->telefono_movil;
+            $cliente->direccion_fiscal = $request->direccion_fiscal;
+            $cliente->direccion = $request->direccion;
+            $cliente->correo_electronico = $request->correo_electronico;
+            $cliente->facebook = $request->facebook;
+            $cliente->whatsapp = $request->whatsapp;
+            $cliente->nombre_contacto = $request->nombre_contacto;
+            $cliente->tipo_documento_contacto = $request->tipo_documento_contacto;
+            $cliente->documento_contacto = $request->documento_contacto;
+            $parametros = DB::table('empresa')->where('estado', 'ACTIVO')->first();
+            $contraseñagenerada = generarcontraseñacliente($cliente);
+            $mensaje = DB::table('mensaje')->where('estado', 'ACTIVO')->first();
+            try {
+                Config::set('mail.mailers.smtp.username', $parametros->correo_electronico);
+                Config::set('mail.mailers.smtp.password', $parametros->contraseña);
+                $data = array('mensaje' => $mensaje->mensaje, 'path' => $mensaje->ruta_logo, 'user' => $request->correo_electronico, 'contraseña' => $contraseñagenerada);
+                Mail::send('emails.mensaje', $data, function ($message) use ($request, $mensaje, $parametros) {
+                    $message->to($request->correo_electronico, $request->nombre)
+                        ->subject($mensaje->asunto);
+                    $message->from($parametros->correo_electronico, $parametros->nombre_comercial);
+                });
+            } catch (Exception $e) {
+                Log::info($e);
+            }
+            $usuario = User::create([
+                'usuario' => $request->nombre,
+                'email' => $request->correo_electronico,
+                'password' => bcrypt($contraseñagenerada),
+                'tipo' => 'CLIENTE'
+            ]);
+            $usuario->roles()->sync([2]);
+            $cliente->user_id = $usuario->id;
 
-        $cliente = new Cliente();
-        $cliente->tipo_documento = $request->tipo_documento;
-        $cliente->documento = $request->documento;
-        $cliente->nombre = $request->nombre;
-        $cliente->nombre_comercial = $request->nombre_comercial;
-        $cliente->activo = $request->activo;
-        $cliente->telefono_movil = $request->telefono_movil;
-        $cliente->direccion_fiscal = $request->direccion_fiscal;
-        $cliente->direccion=$request->direccion;
-        $cliente->correo_electronico=$request->correo_electronico;
-        $cliente->facebook=$request->facebook;
-        $cliente->whatsapp=$request->whatsapp;
-        $cliente->nombre_contacto=$request->nombre_contacto;
-        $cliente->tipo_documento_contacto=$request->tipo_documento_contacto;
-        $cliente->documento_contacto=$request->documento_contacto;
+            $cliente->save();
+            DB::commit();
+            Session::flash('success', 'Cliente creado.');
+            return redirect()->route('cliente.index')->with('guardar', 'success');
+        } catch (Exception $e) {
+            Log::info($e);
+            DB::rollBack();
+            return redirect()->back();
+        }
 
 
-
-       // config(['mail.username' => 'cs3604302@gmail.com']);
-        //config(['mail.password' => 'xxxredtyciquzaja']);
-
-        $parametros=DB::table('empresa')->where('estado','ACTIVO')->first();
-        Config::set('mail.mailers.smtp.username', $parametros->correo_electronico);
-        Config::set('mail.mailers.smtp.password', $parametros->contraseña);
-        $contraseñagenerada=generarcontraseñacliente($cliente);
-
-        $mensaje=DB::table('mensaje')->where('estado','ACTIVO')->first();
-
-         $data=array('mensaje'=>$mensaje->mensaje,'path'=>$mensaje->ruta_logo,'user'=>$request->correo_electronico,'contraseña'=>$contraseñagenerada);
-        Mail::send('emails.mensaje',$data,function($message) use ($request,$mensaje,$parametros){
-            $message->to($request->correo_electronico, $request->nombre)
-            ->subject($mensaje->asunto);
-            $message->from($parametros->correo_electronico,$parametros->nombre_comercial);
-        });
-        $usuario=User::create([
-            'usuario'=> $request->nombre,
-            'email'=>$request->correo_electronico,
-            'password'=>bcrypt($contraseñagenerada),
-            'tipo'=>'CLIENTE'
-        ]);
-        $usuario->roles()->sync([2]);
-        $cliente->user_id=$usuario->id;
-
-        $cliente->save();
-
-        Session::flash('success','Cliente creado.');
-        return redirect()->route('cliente.index')->with('guardar', 'success');
     }
 
     /**
@@ -175,8 +181,8 @@ class ClienteController extends Controller
 
         $rules = [
             'tipo_documento' => 'required',
-            'documento' => ['required','numeric', Rule::unique('clientes','documento')->where(function ($query) {
-                $query->whereIn('estado',["ACTIVO"]);
+            'documento' => ['required', 'numeric', Rule::unique('clientes', 'documento')->where(function ($query) {
+                $query->whereIn('estado', ["ACTIVO"]);
             })->ignore($id)],
             'nombre_comercial' => 'required',
             'activo' => 'required',
@@ -197,8 +203,8 @@ class ClienteController extends Controller
             'nombre.required' => 'El Nombre es obligatorio',
             'telefono_movil.required' => 'El campo Teléfono móvil es obligatorio',
             'telefono_movil.numeric' => 'El campo Teléfono móvil debe ser numérico',
-            'direccion_fiscal.required'=>'El campo direccion es obligatorio',
-            'direccion.required'=>'El campo direccion es obligatorio',
+            'direccion_fiscal.required' => 'El campo direccion es obligatorio',
+            'direccion.required' => 'El campo direccion es obligatorio',
             'correo_electronico.required' => 'El campo Correo es Obligatorio',
 
         ];
@@ -206,7 +212,7 @@ class ClienteController extends Controller
         Validator::make($data, $rules, $messagev)->validate();
 
         $cliente = Cliente::findOrFail($id);
-        $correo=$cliente->correo_electronico;
+        $correo = $cliente->correo_electronico;
         $cliente->tipo_documento = $request->tipo_documento;
         $cliente->documento = $request->documento;
         $cliente->nombre = $request->nombre;
@@ -214,39 +220,38 @@ class ClienteController extends Controller
         $cliente->activo = $request->activo;
         $cliente->telefono_movil = $request->telefono_movil;
         $cliente->direccion_fiscal = $request->direccion_fiscal;
-        $cliente->direccion=$request->direccion;
-        $cliente->correo_electronico=$request->correo_electronico;
-        $cliente->facebook=$request->facebook;
-        $cliente->whatsapp=$request->whatsapp;
-        $cliente->nombre_contacto=$request->nombre_contacto;
-        $cliente->tipo_documento_contacto=$request->tipo_documento_contacto;
-        $cliente->documento_contacto=$request->documento_contacto;
+        $cliente->direccion = $request->direccion;
+        $cliente->correo_electronico = $request->correo_electronico;
+        $cliente->facebook = $request->facebook;
+        $cliente->whatsapp = $request->whatsapp;
+        $cliente->nombre_contacto = $request->nombre_contacto;
+        $cliente->tipo_documento_contacto = $request->tipo_documento_contacto;
+        $cliente->documento_contacto = $request->documento_contacto;
 
 
-        if($correo!=$request->correo_electronico)
-        {
-            $parametros=DB::table('empresa')->where('estado','ACTIVO')->first();
+        if ($correo != $request->correo_electronico) {
+            $parametros = DB::table('empresa')->where('estado', 'ACTIVO')->first();
             Config::set('mail.mailers.smtp.username', $parametros->correo_electronico);
             Config::set('mail.mailers.smtp.password', $parametros->contraseña);
-            $contraseñagenerada=generarcontraseñacliente($cliente);
+            $contraseñagenerada = generarcontraseñacliente($cliente);
 
-            $mensaje=DB::table('mensaje')->where('estado','ACTIVO')->first();
+            $mensaje = DB::table('mensaje')->where('estado', 'ACTIVO')->first();
 
 
-            $idusuario=DB::table('users')->where('id',$cliente->user_id)->first();
-            $usuario=User::findOrFail($idusuario->id);
-            $usuario->usuario=$request->nombre;
-            $usuario->email=$request->correo_electronico;
-            $usuario->password=bcrypt($contraseñagenerada);
-            $usuario->tipo='CLIENTE';
+            $idusuario = DB::table('users')->where('id', $cliente->user_id)->first();
+            $usuario = User::findOrFail($idusuario->id);
+            $usuario->usuario = $request->nombre;
+            $usuario->email = $request->correo_electronico;
+            $usuario->password = bcrypt($contraseñagenerada);
+            $usuario->tipo = 'CLIENTE';
             $usuario->update();
 
 
-             $data=array('mensaje'=>$mensaje->mensaje,'path'=>$mensaje->ruta_logo,'user'=>$request->correo_electronico,'contraseña'=>$contraseñagenerada);
-            Mail::send('emails.mensaje',$data,function($t) use ($request,$mensaje,$parametros){
+            $data = array('mensaje' => $mensaje->mensaje, 'path' => $mensaje->ruta_logo, 'user' => $request->correo_electronico, 'contraseña' => $contraseñagenerada);
+            Mail::send('emails.mensaje', $data, function ($t) use ($request, $mensaje, $parametros) {
                 $t->to($request->correo_electronico, $request->nombre)
-                ->subject($mensaje->asunto);
-                $t->from($parametros->correo_electronico,$parametros->nombre_comercial);
+                    ->subject($mensaje->asunto);
+                $t->from($parametros->correo_electronico, $parametros->nombre_comercial);
             });
         }
         $cliente->save();
@@ -254,7 +259,7 @@ class ClienteController extends Controller
 
         //Registro de actividad
 
-        Session::flash('success','Cliente modificado.');
+        Session::flash('success', 'Cliente modificado.');
         return redirect()->route('cliente.index')->with('guardar', 'success');
     }
 
@@ -274,27 +279,27 @@ class ClienteController extends Controller
         //Registro de actividad
 
 
-        Session::flash('success','Cliente eliminado.');
+        Session::flash('success', 'Cliente eliminado.');
         return redirect()->route('cliente.index')->with('eliminar', 'success');
     }
 
     public function getTable()
     {
-        $data= DB::table('clientes')->select('*')->where('clientes.estado','ACTIVO')->orderBy('clientes.id', 'desc')->get();
+        $data = DB::table('clientes')->select('*')->where('clientes.estado', 'ACTIVO')->orderBy('clientes.id', 'desc')->get();
         return Datatables::of($data)->make(true);
     }
-    public function getTableDispositivo(Request $request,$id)
+    public function getTableDispositivo(Request $request, $id)
     {
-       // return datatables()->query(DB::table('dispositivo')->select('*')->where('dispositivo.estado','ACTIVO')->orderBy('dispositivo.id', 'desc')    )->toJson();
-       $data= DB::table('detallecontrato as dc')
-       ->join('contrato as c','c.id','=','dc.contrato_id')
-       ->join('dispositivo as d','d.id','=','dc.dispositivo_id')
-       ->select('d.*')
-       ->where('c.cliente_id',$id)
-       ->where('d.estado','ACTIVO')
-       ->orderBy('d.id', 'desc')
-       ->get();
-       return Datatables::of($data)->make(true);
+        // return datatables()->query(DB::table('dispositivo')->select('*')->where('dispositivo.estado','ACTIVO')->orderBy('dispositivo.id', 'desc')    )->toJson();
+        $data = DB::table('detallecontrato as dc')
+            ->join('contrato as c', 'c.id', '=', 'dc.contrato_id')
+            ->join('dispositivo as d', 'd.id', '=', 'dc.dispositivo_id')
+            ->select('d.*')
+            ->where('c.cliente_id', $id)
+            ->where('d.estado', 'ACTIVO')
+            ->orderBy('d.id', 'desc')
+            ->get();
+        return Datatables::of($data)->make(true);
     }
     public function getDocumento(Request $request)
     {

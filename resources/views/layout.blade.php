@@ -12,6 +12,7 @@
     @else
         <link rel="icon" href="{{ asset('img/e.png') }}" />
     @endif
+    @yield('vue-css')
     <link href="{{ asset('Inspinia/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('Inspinia/font-awesome/css/font-awesome.css') }}" rel="stylesheet">
     <link href="{{ asset('Inspinia/css/animate.css') }}" rel="stylesheet">
@@ -199,7 +200,8 @@
         </div>
         </div>
     @endauth
-    <script  src="{{ asset('js/app.js') }}" ></script>
+
+    @yield('vue-js')
     <script src="{{ asset('Inspinia/js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ asset('js/PageInit/color.js') }}"></script>
 
@@ -221,7 +223,6 @@
         });
 
     </script>
-
     <script src="{{ asset('Inspinia/js/popper.min.js') }}"></script>
     <script src="{{ asset('Inspinia/js/bootstrap.js') }}"></script>
     <script src="{{ asset('Inspinia/js/plugins/metisMenu/jquery.metisMenu.js') }}"></script>
@@ -232,6 +233,7 @@
     <script src="{{ asset('Inspinia/js/plugins/toastr/toastr.min.js') }}"></script>
     <script src="{{ asset('Inspinia/js/scripts.js') }}"></script>
     <script src="{{ asset('SweetAlert/sweetalert2@10.js') }}"></script>
+    <script src="{{ asset('Inspinia/js/plugins/iCheck/icheck.min.js') }}" type="text/javascript"></script>
     @stack('scripts-mapas')
     @stack('scripts')
     <script>
