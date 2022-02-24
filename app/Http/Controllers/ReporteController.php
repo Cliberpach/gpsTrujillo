@@ -151,8 +151,7 @@ class ReporteController extends Controller
                         $estado = "En movimiento";
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -162,8 +161,8 @@ class ReporteController extends Controller
             }
             array_push($data, array(
                 "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                "velocidad" =>sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                "evento" => $evento,"direccion"=>$consulta[$i]->direccion
+                "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                "evento" => $evento, "direccion" => $consulta[$i]->direccion
             ));
         }
         return response($data)
@@ -311,8 +310,7 @@ class ReporteController extends Controller
                         }
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -323,8 +321,8 @@ class ReporteController extends Controller
             if ($alerta_dispositivo) {
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                    "velocidad" => sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                    "evento" => $evento,"direccion"=>$consulta[$i]->direccion
+                    "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                    "evento" => $evento, "direccion" => $consulta[$i]->direccion
                 ));
             }
         }
@@ -436,8 +434,7 @@ class ReporteController extends Controller
                         $estado = "Sin movimiento";
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -448,8 +445,8 @@ class ReporteController extends Controller
             if ($response == true) {
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                    "velocidad" => sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                    "evento" => $evento,"direccion"=>$consulta[$i]->direccion
+                    "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                    "evento" => $evento, "direccion" => $consulta[$i]->direccion
                 ));
             }
         }
@@ -485,11 +482,11 @@ class ReporteController extends Controller
         } else {
             $consulta = $consulta->join('historial as m', 'm.imei', '=', 'd.imei')->get();
         }
-        $ES=0;
-        $valorRuta=false;
+        $ES = 0;
+        $valorRuta = false;
         for ($i = 0; $i < count($consulta); $i++) {
             $velocidad = 0;
-            $posicion="-";
+            $posicion = "-";
             $estado = "-";
             $evento = "-";
             $altitud = 0;
@@ -499,20 +496,15 @@ class ReporteController extends Controller
                 ['lat' => $consulta[$i]->lat, 'lng' => $consulta[$i]->lng],
                 $arreglo_geozona
             );
-            if($response==$valorRuta)
-            {
-                $ES=1;
-                if($valorRuta==false)
-                {
-                    $posicion="Fuera de la Geozona";
-                    $valorRuta=true;
+            if ($response == $valorRuta) {
+                $ES = 1;
+                if ($valorRuta == false) {
+                    $posicion = "Fuera de la Geozona";
+                    $valorRuta = true;
+                } else {
+                    $valorRuta = false;
+                    $posicion = "Dentro de la Geozona";
                 }
-                else
-                {
-                    $valorRuta=false;
-                    $posicion="Dentro de la Geozona";
-                }
-
             }
 
             if ($consulta[$i]->nombre == "MEITRACK") {
@@ -557,8 +549,7 @@ class ReporteController extends Controller
                         $estado = "Sin movimiento";
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -566,12 +557,12 @@ class ReporteController extends Controller
                     }
                 }
             }
-            if ($ES==1) {
-                $ES=0;
+            if ($ES == 1) {
+                $ES = 0;
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                    "velocidad" => sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                    "evento" => $evento,"direccion"=>$consulta[$i]->direccion,"posicion"=>$posicion
+                    "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                    "evento" => $evento, "direccion" => $consulta[$i]->direccion, "posicion" => $posicion
                 ));
             }
         }
@@ -593,10 +584,10 @@ class ReporteController extends Controller
     {
         $fechainicio = explode(' ', $request->fechainicio)[0];
         $fechafinal = explode(' ', $request->fechafinal)[0];
-        $fechanow = strval(date("Y/n/d", time()));
+        $fechanow = strval(date("Y/m/d", time()));
         $data = array();
-        
-        $consulta = DB::table('dispositivo as d')->where([['m.lat', '<>', '0'], ['lng', '<>', '0'], ['d.imei', '=', $request->dispositivo]])
+
+        $consulta = DB::table('dispositivo as d')->where([['m.lat', '<>', '0'], ['m.lng', '<>', '0'], ['d.imei', '=', $request->dispositivo]])
             ->whereBetween('m.fecha', [$request->fechainicio, $request->fechafinal]);
         if (($fechainicio != $fechanow) && ($fechanow == $fechafinal)) {
             $consulta_dos = $consulta->join('historial as m', 'm.imei', '=', 'd.imei');
@@ -660,8 +651,7 @@ class ReporteController extends Controller
                         $estado = "En movimiento";
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -671,7 +661,7 @@ class ReporteController extends Controller
             }
             array_push($data, array(
                 "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                "velocidad" =>sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
                 "evento" => $evento
             ));
         }
@@ -768,8 +758,7 @@ class ReporteController extends Controller
                         $estado = "En movimiento";
                     }
                 }
-            }
-            elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
+            } elseif ($consulta[$i]->nombre == "TELTONIKA12O") {
                 if (count($cadena) >= 1) {
                     $velocidad = floatval($cadena[3]);
                     if ($velocidad != "0") {
@@ -788,23 +777,23 @@ class ReporteController extends Controller
             if ($consulta[$i]->placa == $dispositivo_agrupar) {
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                    "velocidad" => sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                    "evento" => $evento, "placa" => $consulta[$i]->placa,"direccion"=>$consulta[$i]->direccion
+                    "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                    "evento" => $evento, "placa" => $consulta[$i]->placa, "direccion" => $consulta[$i]->direccion
                 ));
             } else {
                 $posicion = array_search($dispositivo_agrupar, array_column($data_all, 'nombre'));
-                $data_all[$posicion]['datos']=$data;
+                $data_all[$posicion]['datos'] = $data;
                 $dispositivo_agrupar = $consulta[$i]->placa;
                 $data = array();
                 array_push($data, array(
                     "imei" => $consulta[$i]->imei, "lat" => $consulta[$i]->lat, "lng" => $consulta[$i]->lng, "cadena" => $consulta[$i]->cadena,
-                    "velocidad" => sprintf("%.2f", $velocidad). " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
-                    "evento" => $evento, "placa" => $consulta[$i]->placa,"direccion"=>$consulta[$i]->direccion
+                    "velocidad" => sprintf("%.2f", $velocidad) . " kph", "fecha" => $consulta[$i]->fecha, "estado" => $estado, "altitud" => $altitud, "marcador" => $marcador,
+                    "evento" => $evento, "placa" => $consulta[$i]->placa, "direccion" => $consulta[$i]->direccion
                 ));
             }
         }
         $posicion = array_search($dispositivo_agrupar, array_column($data_all, 'nombre'));
-        $data_all[$posicion]['datos']=$data;
+        $data_all[$posicion]['datos'] = $data;
         return response($data_all);
     }
 }

@@ -40,6 +40,10 @@ class MapaController extends Controller
                     $velocidad_km = floatval($arreglo_cadena[3]);
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+                } elseif ($dispositivo->nombre == "COBAN") {
+                    $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                    $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                    $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 }
                 $dispositivo->dispositivoUbicacion->velocidad = $velocidad_km;
                 $dispositivo->dispositivoUbicacion->estado = $estado;
@@ -173,6 +177,7 @@ class MapaController extends Controller
         $data = array();
         $fila = DB::table('ubicacion_recorrido as ur')->join('dispositivo as d', 'd.imei', '=', 'ur.imei')
             ->select('ur.*', 'd.nombre', 'd.placa')
+            ->where('ur.lat', '!=', 0)
             ->where('ur.imei', $request->imei)->orderBy('ur.fecha', 'asc')->get();
         for ($i = 0; $i < count($fila); $i++) {
 
@@ -185,7 +190,7 @@ class MapaController extends Controller
             $horaDelMotor = "0.0";
             $intensidadSenal = "0.0";
             $estado = "Sin Movimiento";
-
+            $vkm = 0;
             if ($fila[$i]->nombre == "TRACKER303") {
 
 
@@ -205,26 +210,32 @@ class MapaController extends Controller
                 $vkm = $velocidad_km;
                 $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                 $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+            } elseif ($fila[$i]->nombre == "COBAN") {
+                $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                $vkm = $velocidad_km;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             }
 
-            if ($vkm > 2) {
-                array_push($data, array(
-                    "placa" => $fila[$i]->placa,
-                    "imei" => $fila[$i]->imei,
-                    "estado" => $estado,
-                    "lat" => $fila[$i]->lat,
-                    "intensidadSenal" => $intensidadSenal,
-                    "lng" => $fila[$i]->lng,
-                    "fecha" => $fila[$i]->fecha,
-                    "altitud" => $altitud,
-                    "velocidad" => $velocidad_km,
-                    "nivelCombustible" => $nivelCombustible,
-                    "volumenCombustible" => $volumenCombustible,
-                    "horaDelMotor" => $horaDelMotor,
-                    "direccion" => $fila[$i]->direccion,
-                    "odometro" => $odometro
-                ));
-            }
+
+            // if ($vkm > 2) {
+            array_push($data, array(
+                "placa" => $fila[$i]->placa,
+                "imei" => $fila[$i]->imei,
+                "estado" => $estado,
+                "lat" => $fila[$i]->lat,
+                "intensidadSenal" => $intensidadSenal,
+                "lng" => $fila[$i]->lng,
+                "fecha" => $fila[$i]->fecha,
+                "altitud" => $altitud,
+                "velocidad" => $velocidad_km,
+                "nivelCombustible" => $nivelCombustible,
+                "volumenCombustible" => $volumenCombustible,
+                "horaDelMotor" => $horaDelMotor,
+                "direccion" => $fila[$i]->direccion,
+                "odometro" => $odometro
+            ));
+            // }
         }
         return $data;
     }
@@ -256,7 +267,12 @@ class MapaController extends Controller
                 $velocidad_km = floatval($arreglo_cadena[3]);
                 $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                 $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+            } elseif ($dispositivo->nombre == "COBAN") {
+                $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             }
+
             $consultaUbicacion->velocidad = $velocidad_km;
             $consultaUbicacion->estado = $estado;
             $consultaUbicacion->estado_dispositivo = DB::table('estadodispositivo')->where('imei', $imei)->first();
@@ -273,6 +289,7 @@ class MapaController extends Controller
         $fila = DB::table('ubicacion_recorrido as ur')
             ->join('dispositivo as d', 'd.imei', '=', 'ur.imei')
             ->select('ur.*', 'd.nombre', 'd.placa')
+            ->where('ur.lat', '!=', 0)
             ->where('ur.imei', $imei)->orderBy('ur.fecha', 'asc')->get();
         for ($i = 0; $i < count($fila); $i++) {
 
@@ -308,30 +325,34 @@ class MapaController extends Controller
                     $vkm = $velocidad_km;
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+                } elseif ($fila[$i]->nombre == "COBAN") {
+                    $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                    $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                    $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 }
                 $marcador = SphericalUtil::computeHeading(
                     ['lat' => $fila[$i]->lat, 'lng' => $fila[$i]->lng], //from array [lat, lng]
                     ['lat' => $fila[$i + 1]->lat, 'lng' => $fila[$i + 1]->lng]
                 );
-                if ($vkm > 2) {
-                    array_push($recorrido, array(
-                        "placa" => $fila[$i]->placa,
-                        "imei" => $fila[$i]->imei,
-                        "img" => self::imgComputeHeading($marcador),
-                        "estado" => $estado,
-                        "lat" => $fila[$i]->lat,
-                        "lng" => $fila[$i]->lng,
-                        "intensidadSenal" => $intensidadSenal,
-                        "fecha" => $fila[$i]->fecha,
-                        "altitud" => $altitud,
-                        "velocidad" => $velocidad_km,
-                        "nivelCombustible" => $nivelCombustible,
-                        "volumenCombustible" => $volumenCombustible,
-                        "horaDelMotor" => $horaDelMotor,
-                        "direccion" => $fila[$i]->direccion,
-                        "odometro" => $odometro
-                    ));
-                }
+                // if ($vkm > 2) {
+                array_push($recorrido, array(
+                    "placa" => $fila[$i]->placa,
+                    "imei" => $fila[$i]->imei,
+                    "img" => self::imgComputeHeading($marcador),
+                    "estado" => $estado,
+                    "lat" => $fila[$i]->lat,
+                    "lng" => $fila[$i]->lng,
+                    "intensidadSenal" => $intensidadSenal,
+                    "fecha" => $fila[$i]->fecha,
+                    "altitud" => $altitud,
+                    "velocidad" => $velocidad_km,
+                    "nivelCombustible" => $nivelCombustible,
+                    "volumenCombustible" => $volumenCombustible,
+                    "horaDelMotor" => $horaDelMotor,
+                    "direccion" => $fila[$i]->direccion,
+                    "odometro" => $odometro
+                ));
+                // }
             }
         }
         return array("recorrido" => $recorrido, "data_recorrido" => $arreglo_recorrido);
@@ -342,97 +363,97 @@ class MapaController extends Controller
         if ($valor == 0) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_0.png"
             );
         } else if ($valor > 0 && $valor < 45) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_22.png"
             );
         } else if ($valor == 45) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_45.png"
             );
         } else if ($valor > 45 && $valor < 90) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_67.png"
             );
         } else if ($valor == 90) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_90.png"
             );
         } else if ($valor > 90 && $valor < 135) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_112.png"
             );
         } else if ($valor == 135) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_135.png"
             );
         } else if ($valor > 135 && $valor < 180) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_157.png"
             );
         } else if ($valor == 180 || $valor == -180) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_180.png"
             );
         } else if ($valor < 0 && $valor > -45) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N22.png"
             );
         } else if ($valor == -45) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N45.png"
             );
         } else if ($valor < -45 && $valor > -90) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N67.png"
             );
         } else if ($valor == -90) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N90.png"
             );
         } else if ($valor < 90 && $valor > -135) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N112.png"
             );
         } else if ($valor == -135) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N135.png"
             );
         } else if ($valor < -135 && $valor > -180) {
             $image = array(
                 "url" =>
-                "http://" . $_SERVER['SERVER_NAME'].":8000" . "/" .
+                "https://" . $_SERVER['SERVER_NAME'] . "/" .
                     "img/rotation/gpa_prueba_N157.png"
             );
         }

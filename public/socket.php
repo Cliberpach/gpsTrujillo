@@ -1,8 +1,8 @@
 <?php
 echo "start";
 date_default_timezone_set('America/Lima');
-$ip_address = "165.227.210.131";
-$port = "6901";
+$ip_address = "143.198.167.2";
+$port = "6900";
 $server = stream_socket_server("tcp://$ip_address:$port", $errno, $errorMessage);
 if ($server === false) {
     die("stream_socket_server error: $errorMessage");
@@ -20,7 +20,7 @@ while (true) {
     if (in_array($server, $read_sockets)) {
         $new_client = stream_socket_accept($server);
         if ($new_client) {
-            // echo 'new connection: ' . stream_socket_get_name($new_client, true) . "\n";
+            //echo 'new connection: ' . stream_socket_get_name($new_client, true) . "\n";
             $client_sockets[] = $new_client;
             $Clientes[] = array('socket' => $new_client, 'imei' => " ", 'data' => " ");
         }
@@ -65,6 +65,13 @@ while (true) {
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_exec($ch);
+                curl_close($ch);
+
                 break;
             case 19:
                 $posicion_imei = strpos($tk103_data[0], ":");
@@ -89,6 +96,12 @@ while (true) {
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_exec($ch);
+                curl_close($ch);
 
                 break;
             case 26:
@@ -107,6 +120,12 @@ while (true) {
                 } else {
                     insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
                 }
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_exec($ch);
+                curl_close($ch);
                 break;
             default:
                 // echo $data;
@@ -119,6 +138,12 @@ while (true) {
             fclose($socket);
             if (!is_null($imei_gps) && !is_null($data_gps)) {
                 insert_conexion($imei_gps, "Desconectado", "Sin Movimiento", $data_gps);
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei_gps);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_exec($ch);
+                curl_close($ch);
             }
             continue;
         }
@@ -129,33 +154,35 @@ while (true) {
 }
 function actualizar_ruta_db($imei, $gps_time, $latitude, $longitude, $data)
 {
-    $servername = "localhost";
-    $username = "usuario";
-    $password = 'gps12345678';
-    $dbname = "gpstracker";
-    $time = new DateTime($gps_time);
-    $time->sub(new DateInterval('PT' . '15' . 'M'));
-    $fechaantes = $time->format('Y-m-d H:i');
-    try {
-        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "delete from ubicacion_recorrido where imei='" . $imei . "';";
-        $conn->query($sql);
-        $query = "select * from ubicacion where imei='" . $imei . "' and fecha>='" . $fechaantes . "'";
-        foreach ($conn->query($query) as $fila) {
-            $params = array(
-                ':imei'     => $fila['imei'],
-                ':cadena'     => $fila['cadena'],
-                ':fecha' => $fila['fecha'],
-                ':lat'     => $fila['lat'],
-                ':lng'        => $fila['lng'],
-                ':direccion' => $fila['direccion']
-            );
-            $insert = $conn->prepare("INSERT INTO ubicacion_recorrido(imei,lat,lng,cadena,fecha,direccion) VALUES (:imei,:lat,:lng,:cadena,:fecha,:direccion)");
-            $insert->execute($params);
+    if ($latitude != 0 && $longitude != 0) {
+        $servername = "localhost";
+        $username = "usuario";
+        $password = 'gps12345678';
+        $dbname = "gpstracker";
+        $time = new DateTime($gps_time);
+        $time->sub(new DateInterval('PT' . '15' . 'M'));
+        $fechaantes = $time->format('Y-m-d H:i');
+        try {
+            $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $sql = "delete from ubicacion_recorrido where imei='" . $imei . "';";
+            $conn->query($sql);
+            $query = "select * from ubicacion where imei='" . $imei . "' and fecha>='" . $fechaantes . "'";
+            foreach ($conn->query($query) as $fila) {
+                $params = array(
+                    ':imei'     => $fila['imei'],
+                    ':cadena'     => $fila['cadena'],
+                    ':fecha' => $fila['fecha'],
+                    ':lat'     => $fila['lat'],
+                    ':lng'        => $fila['lng'],
+                    ':direccion' => $fila['direccion']
+                );
+                $insert = $conn->prepare("INSERT INTO ubicacion_recorrido(imei,lat,lng,cadena,fecha,direccion) VALUES (:imei,:lat,:lng,:cadena,:fecha,:direccion)");
+                $insert->execute($params);
+            }
+        } catch (PDOException $e) {
+            echo "error a la actualizacion de la ruta " . $e . " \n";
         }
-    } catch (PDOException $e) {
-        echo "error a la actualizacion de la ruta " . $e . " \n";
     }
 }
 function insert_ubicacion_db($imei, $gps_time, $latitude, $longitude, $cadena)
@@ -435,8 +462,7 @@ function insert_location_into_db($imei, $gps_time, $latitude, $longitude, $caden
 
                     $velocidad_km = floatval($arreglo_cadena[10]);
                     $velocidad_km = sprintf("%.2f", $velocidad_km);
-                }
-                elseif($fila['nombre'] == "TELTONIKA12O") {
+                } elseif ($fila['nombre'] == "TELTONIKA12O") {
 
                     $velocidad_km = floatval($arreglo_cadena[3]);
                 }
@@ -532,4 +558,3 @@ function enviar_dispositivo($token, $placa, $telefono, $alerta, $image)
         echo 'Excepción capturada: firebase ',  $e->getMessage(), "\n";
     }
 }
-

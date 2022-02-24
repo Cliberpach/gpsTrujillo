@@ -219,6 +219,9 @@ export default {
                         data.ubicacion.estado_dispositivo.movimiento;
                     value.estado_dispositivo.estado =
                         data.ubicacion.estado_dispositivo.estado;
+                    value.dispositivo_ubicacion.velocidad =
+                        data.ubicacion.velocidad;
+                    value.dispositivo_ubicacion.fecha = data.ubicacion.fecha;
                     nuevo.push(value);
                 } else {
                     nuevo.push(value);
@@ -240,7 +243,7 @@ export default {
                 ),
             });
             this.dispositivos_data = nuevo;
-            if ((this.imei = data.ubicacion.imei)) {
+            if (this.imei == data.ubicacion.imei) {
                 $this.eliminarMarcadores();
                 $this.eliminaruta();
                 data.ubicacion.recorrido.forEach((value, index, array) => {
@@ -343,7 +346,7 @@ export default {
                     imei: this.imei,
                 },
             });
-            // console.log(datos.data.recorrido)
+            // console.log(datos)
             this.eliminarMarcadores();
             this.eliminaruta();
             datos.data.recorrido.forEach((value, index, array) => {
