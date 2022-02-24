@@ -2145,6 +2145,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         if (index == i) {
           value.estado_dispositivo.movimiento = data.ubicacion.estado_dispositivo.movimiento;
           value.estado_dispositivo.estado = data.ubicacion.estado_dispositivo.estado;
+          value.dispositivo_ubicacion.velocidad = data.ubicacion.velocidad;
+          value.dispositivo_ubicacion.fecha = data.ubicacion.fecha;
           nuevo.push(value);
         } else {
           nuevo.push(value);
@@ -2159,7 +2161,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       });
       this.dispositivos_data = nuevo;
 
-      if (this.imei = data.ubicacion.imei) {
+      if (this.imei == data.ubicacion.imei) {
         $this.eliminarMarcadores();
         $this.eliminaruta();
         data.ubicacion.recorrido.forEach(function (value, index, array) {
@@ -2264,7 +2266,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 7:
                 datos = _context.sent;
-                // console.log(datos.data.recorrido)
+                // console.log(datos)
                 this.eliminarMarcadores();
                 this.eliminaruta();
                 datos.data.recorrido.forEach(function (value, index, array) {
@@ -53056,29 +53058,28 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  */
 
 
-window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js"); // window.Echo = new Echo({
-//     broadcaster: "pusher",
-//     key: "ASDASF2121",
-//     //    cluster:'mt1',
-//     wsHost: window.location.hostname,
-//     wssPort: 6001,
-//     encrypted: false,
-//     disableStats: true,
-//     enabledTransports: ["ws", "wss"],
-//     // forceTLS:true,
-// });
+window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
+window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
+  broadcaster: "pusher",
+  key: "ASDASF2121",
+  //    cluster:'mt1',
+  wsHost: window.location.hostname,
+  wssPort: 6001,
+  encrypted: false,
+  disableStats: true,
+  enabledTransports: ["ws", "wss"] // forceTLS:true,
 
+});
 /* En el local
 */
-
-window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
-  broadcaster: 'pusher',
-  key: 'ASDASF2121',
-  wsHost: window.location.hostname,
-  wsPort: 6001,
-  forceTLS: false,
-  disableStats: true
-});
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: 'ASDASF2121',
+//     wsHost: window.location.hostname,
+//     wsPort: 6001,
+//     forceTLS:false,
+//     disableStats: true,
+// });
 
 /***/ }),
 
