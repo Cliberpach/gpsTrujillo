@@ -578,6 +578,11 @@ class DispositivoController extends Controller
                     $vkm = $velocidad_km;
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+                } elseif($fila[$i]->nombre == "CONCOX") {
+                    $velocidad_km = hexdec(substr($fila[$i]->cadena,38,2));
+                    $vkm = $velocidad_km;
+                    $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                    $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 }
                 $marcador = SphericalUtil::computeHeading(
                     ['lat' => $fila[$i]->lat, 'lng' => $fila[$i]->lng], //from array [lat, lng]

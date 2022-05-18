@@ -1,8 +1,8 @@
 <?php
-echo "start";
+echo "start\n";
 date_default_timezone_set('America/Lima');
 $ip_address = "143.198.167.2";
-$port = "6900";
+$port = "6800";
 $server = stream_socket_server("tcp://$ip_address:$port", $errno, $errorMessage);
 if ($server === false) {
     die("stream_socket_server error: $errorMessage");
@@ -22,138 +22,92 @@ while (true) {
         if ($new_client) {
             //echo 'new connection: ' . stream_socket_get_name($new_client, true) . "\n";
             $client_sockets[] = $new_client;
-            $Clientes[] = array('socket' => $new_client, 'imei' => " ", 'data' => " ");
+            $Clientes[] = array('socket' => $new_client, 'imei' => "", 'data' => "");
         }
         unset($read_sockets[array_search($server, $read_sockets)]);
     }
     foreach ($read_sockets as $socket) {
-        $data = fread($socket, 8192);
-
-        $tk103_data = explode(',', $data);
-        // if (ctype_xdigit($data)) {
-        //     echo "data hexadecimal\n";
-        //     echo $data;
-        // }
-        // else{
-        //     echo "data normal\n";
-        //     echo  dechex($data);
-        // }
-        // echo dechex($data);
-        $response = "";
-        switch (count($tk103_data)) {
-            case 1: // 864895031563388 -> heartbeat requires "ON" response
-                $response = "ON";
-                //echo "sent ON to client\n";
-                break;
-            case 3: // ##,imei:864895031563388,A -> this requires a "LOAD" response
-                if ($tk103_data[0] == "##") {
-                    $response = "LOAD";
-                    // echo "sent LOAD to client\n";
-                }
-                break;
-            case 13:
-                $posicion_imei = strpos($tk103_data[0], ":");
-                $imei = substr($tk103_data[0], $posicion_imei + 1);
-                $alarm = $tk103_data[1];
-                $latitude = 0.0;
-                $longitude = 0.0;
-                if ($tk103_data[7] != "" && $tk103_data[8] != "") {
-                    $latitude = degree_to_decimal($tk103_data[7], $tk103_data[8]);
-                }
-                if ($tk103_data[9] != "" && $tk103_data[10] != "") {
-                    $longitude = degree_to_decimal($tk103_data[9], $tk103_data[10]);
-                }
-                $gps_fecha = nmea_to_mysql_time();
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'] = $imei;
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
-                insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                if ($tk103_data[11] != "") {
-                    insert_conexion($imei, "Conectado", "Movimiento", $data);
-                } else {
-                    insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
-                }
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_exec($ch);
-                curl_close($ch);
-
-                break;
-            case 19:
-                $posicion_imei = strpos($tk103_data[0], ":");
-                $imei = substr($tk103_data[0], $posicion_imei + 1);
-                $alarm = $tk103_data[1];
-                $latitude = 0.0;
-                $longitude = 0.0;
-                if ($tk103_data[7] != "" && $tk103_data[8] != "") {
-                    $latitude = degree_to_decimal($tk103_data[7], $tk103_data[8]);
-                }
-                if ($tk103_data[9] != "" && $tk103_data[10] != "") {
-                    $longitude = degree_to_decimal($tk103_data[9], $tk103_data[10]);
-                }
-                $gps_fecha = nmea_to_mysql_time();
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'] = $imei;
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
-                insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                if ($tk103_data[11] != "") {
-                    insert_conexion($imei, "Conectado", "Movimiento", $data);
-                } else {
-                    insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
-                }
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_exec($ch);
-                curl_close($ch);
-
-                break;
-            case 26:
-
-                $imei = $tk103_data[1];
-                $latitude = $tk103_data[4];
-                $longitude = $tk103_data[5];
-                $gps_fecha = nmea_to_mysql_time();
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'] = $imei;
-                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $data;
-                insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $data);
-                if (floatval($tk103_data[10]) > 0) {
-                    insert_conexion($imei, "Conectado", "Movimiento", $data);
-                } else {
-                    insert_conexion($imei, "Conectado", "Sin Movimiento", $data);
-                }
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_exec($ch);
-                curl_close($ch);
-                break;
-            default:
-                // echo $data;
+        $data = fread($socket,36);
+        $data = bin2hex($data);
+        // echo $data."\n";
+       // echo hexdec($data)."\n";
+       $response="";
+        if(strlen($data)==36)
+        {
+            //echo "inicio";
+            //echo $data."\n";
+            $startBit= substr($data,0, 4);
+            $len=substr($data,4,2);
+            $protocol=substr($data,6,2);
+            $id=substr($data,8,16);
+            $serial=substr($data,24,4);
+            $error=substr($data,28,4);
+            $stop=substr($data,32,4);
+            // echo $startBit."\n";
+            // echo $len."\n";
+            // echo $protocol."\n";
+            // echo $id."\n";
+            // echo $serial."\n";
+            // echo $error."\n";
+            // echo $stop."\n";
+            // $response="\x78\x78\x05"."\x"."01\x"."00\x"."01"."\xD9\xDC\x0D\x0A";
+            $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'] = intval($id);
+            $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = "";
+            $response="\x78\x78\x05\x01\x00\x01\xD9\xDC\x0D\x0A";
+        //    echo $response;
         }
-        if (!$data) {
+        else{
+            // echo "nueva\n";
+            //echo $data."\n";
+            $posicionInicial=strpos($data,"7878");
+            //$packetLen=substr($data,$posicionInicial+4,2);
+            $protocol=substr($data,$posicionInicial+6,2);
+            if($protocol=="12")
+            {
+                //$cant=($packetLen*2)+5;
+                $newInformacion=substr($data,$posicionInicial,72);
+                //echo $newInformacion;
+                $tiempo=substr($newInformacion,8,12);
+                $cantSat=substr($newInformacion,20,2);
+                $latitud=substr($newInformacion,22,8);
+                $longitud=substr($newInformacion,30,8);
+                $speed=substr($newInformacion,38,2);
+                $imei=$Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
+                $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $newInformacion;
+                $latitude=((hexdec($latitud)/60)/30000);
+                $longitude=((hexdec($longitud)/60)/30000);
+                if(intval($latitude)!=0 && intval($longitude)!=0)
+                {
+                    $latitude=$latitude*-1;
+                    $longitude=$longitude*-1;
+                    $speed=hexdec($speed);
+                    $gps_fecha= nmea_to_mysql_time();
+                    insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $newInformacion);
+                    insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude,$newInformacion);
+                    actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $newInformacion);
+                    if (floatval($speed) > 0) {
+                        insert_conexion($imei, "Conectado", "Movimiento", $newInformacion);
+                    } else {
+                        insert_conexion($imei, "Conectado", "Sin Movimiento",$newInformacion);
+                    }
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_exec($ch);
+                    curl_close($ch);
+                }
+               
+            }
+            
+
+        }
+        if (strlen($data)==0) {
             $imei_gps = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
             $data_gps = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'];
             unset($client_sockets[array_search($socket, $client_sockets)]);
-            unset($Clientes[array_search($socket, array_column($Clientes, 'socket'))]);
+            //unset($Clientes[array_search($socket, array_column($Clientes, 'socket'))]);
             fclose($socket);
-            if (!is_null($imei_gps) && !is_null($data_gps)) {
-                insert_conexion($imei_gps, "Desconectado", "Sin Movimiento", $data_gps);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei_gps);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_exec($ch);
-                curl_close($ch);
-            }
             continue;
         }
         if (strlen($response) > 0) {
@@ -461,21 +415,8 @@ function insert_location_into_db($imei, $gps_time, $latitude, $longitude, $caden
         if ($latitude != 0 || $longitude != 0) {
             foreach ($conn->query($query) as $fila) {
                 $velocidad_km = 0;
-                $arreglo_cadena = explode(',', $cadena);
-                if ($fila['nombre'] == "TRACKER303") {
-                    $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
-                    $velocidad_km = sprintf("%.2f", $velocidad_km);
-                } elseif ($fila['nombre'] == "MEITRACK") {
-                    $velocidad_km = floatval($arreglo_cadena[10]);
-                    $velocidad_km = sprintf("%.2f", $velocidad_km);
-                } elseif ($fila['nombre'] == "TELTONIKA12O") {
-                    $velocidad_km = floatval($arreglo_cadena[3]);
-                }
-                elseif ($fila['nombre'] == "COBAN"){
-                    $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
-                    $velocidad_km = sprintf("%.2f", $velocidad_km);
-                } 
-
+                $velocidad_km = substr($cadena,38,2);
+                $velocidad_km = sprintf("%.2f", $velocidad_km);
                 $params = array(
                     ':placa'     => $fila['placa'],
                     ':latitud'        => $latitude,

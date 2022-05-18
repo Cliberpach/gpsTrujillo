@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Dispositivo;
 use App\Events\NuevaUbicacionEvent;
+use App\Events\TestEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Notificacion;
@@ -42,6 +43,11 @@ class MapaController extends Controller
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 } elseif ($dispositivo->nombre == "COBAN") {
                     $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                    $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                    $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+                }
+                elseif($dispositivo->nombre == "CONCOX") {
+                    $velocidad_km = hexdec(substr($dispositivo->dispositivoUbicacion->cadena,38,2));
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 }
@@ -216,6 +222,12 @@ class MapaController extends Controller
                 $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                 $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             }
+            elseif($fila[$i]->nombre == "CONCOX") {
+                $velocidad_km = hexdec(substr($fila[$i]->cadena,38,2));
+                $vkm = $velocidad_km;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+            }
 
 
             // if ($vkm > 2) {
@@ -269,6 +281,11 @@ class MapaController extends Controller
                 $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             } elseif ($dispositivo->nombre == "COBAN") {
                 $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+            }
+            elseif($dispositivo->nombre == "CONCOX") {
+                $velocidad_km = hexdec(substr($consultaUbicacion->cadena,38,2));
                 $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                 $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
             }
@@ -327,6 +344,11 @@ class MapaController extends Controller
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 } elseif ($fila[$i]->nombre == "COBAN") {
                     $velocidad_km = floatval($arreglo_cadena[11]) * 1.85;
+                    $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
+                    $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
+                }
+                elseif($fila[$i]->nombre == "CONCOX") {
+                    $velocidad_km = hexdec(substr($fila[$i]->cadena,38,2));
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
                 }
