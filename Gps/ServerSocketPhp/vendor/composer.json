@@ -1,0 +1,29 @@
+{
+    "name": "pablo/gps",
+    "type": "project",
+    "require": {
+        "wisembly/elephant.io": "^3.3",
+        "react/socket": "^1.11",
+        "illuminate/database": "8.x-dev",
+        "guzzlehttp/guzzle": "7.4.x-dev",
+        "alexpechkarev/geometry-library": "1.0.4"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\":"app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "PabloLms",
+            "email": "pablolomusan@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "config": {
+        "allow-plugins": {
+            "kylekatarnls/update-helper": true
+        }
+    }
+}

@@ -7,7 +7,12 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
-
+const io = require("socket.io-client");
+window.socketClient = io("https://corporacionminkay.com:3000", {
+    secure: true,
+    reconnect: true,
+    rejectUnauthorized: false
+});
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

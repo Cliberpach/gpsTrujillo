@@ -27,22 +27,21 @@ while (true) {
         unset($read_sockets[array_search($server, $read_sockets)]);
     }
     foreach ($read_sockets as $socket) {
-        $data = fread($socket,36);
+        $data = fread($socket, 36);
         $data = bin2hex($data);
         // echo $data."\n";
-       // echo hexdec($data)."\n";
-       $response="";
-        if(strlen($data)==36)
-        {
+        // echo hexdec($data)."\n";
+        $response = "";
+        if (strlen($data) == 36) {
             //echo "inicio";
             //echo $data."\n";
-            $startBit= substr($data,0, 4);
-            $len=substr($data,4,2);
-            $protocol=substr($data,6,2);
-            $id=substr($data,8,16);
-            $serial=substr($data,24,4);
-            $error=substr($data,28,4);
-            $stop=substr($data,32,4);
+            $startBit = substr($data, 0, 4);
+            $len = substr($data, 4, 2);
+            $protocol = substr($data, 6, 2);
+            $id = substr($data, 8, 16);
+            $serial = substr($data, 24, 4);
+            $error = substr($data, 28, 4);
+            $stop = substr($data, 32, 4);
             // echo $startBit."\n";
             // echo $len."\n";
             // echo $protocol."\n";
@@ -53,42 +52,39 @@ while (true) {
             // $response="\x78\x78\x05"."\x"."01\x"."00\x"."01"."\xD9\xDC\x0D\x0A";
             $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'] = intval($id);
             $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = "";
-            $response="\x78\x78\x05\x01\x00\x01\xD9\xDC\x0D\x0A";
-        //    echo $response;
-        }
-        else{
+            $response = "\x78\x78\x05\x01\x00\x01\xD9\xDC\x0D\x0A";
+            //    echo $response;
+        } else {
             // echo "nueva\n";
             //echo $data."\n";
-            $posicionInicial=strpos($data,"7878");
+            $posicionInicial = strpos($data, "7878");
             //$packetLen=substr($data,$posicionInicial+4,2);
-            $protocol=substr($data,$posicionInicial+6,2);
-            if($protocol=="12")
-            {
+            $protocol = substr($data, $posicionInicial + 6, 2);
+            if ($protocol == "12") {
                 //$cant=($packetLen*2)+5;
-                $newInformacion=substr($data,$posicionInicial,72);
+                $newInformacion = substr($data, $posicionInicial, 72);
                 //echo $newInformacion;
-                $tiempo=substr($newInformacion,8,12);
-                $cantSat=substr($newInformacion,20,2);
-                $latitud=substr($newInformacion,22,8);
-                $longitud=substr($newInformacion,30,8);
-                $speed=substr($newInformacion,38,2);
-                $imei=$Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
+                $tiempo = substr($newInformacion, 8, 12);
+                $cantSat = substr($newInformacion, 20, 2);
+                $latitud = substr($newInformacion, 22, 8);
+                $longitud = substr($newInformacion, 30, 8);
+                $speed = substr($newInformacion, 38, 2);
+                $imei = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
                 $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'] = $newInformacion;
-                $latitude=((hexdec($latitud)/60)/30000);
-                $longitude=((hexdec($longitud)/60)/30000);
-                if(intval($latitude)!=0 && intval($longitude)!=0)
-                {
-                    $latitude=$latitude*-1;
-                    $longitude=$longitude*-1;
-                    $speed=hexdec($speed);
-                    $gps_fecha= nmea_to_mysql_time();
+                $latitude = ((hexdec($latitud) / 60) / 30000);
+                $longitude = ((hexdec($longitud) / 60) / 30000);
+                if (intval($latitude) != 0 && intval($longitude) != 0) {
+                    $latitude = $latitude * -1;
+                    $longitude = $longitude * -1;
+                    $speed = hexdec($speed);
+                    $gps_fecha = nmea_to_mysql_time();
                     insert_location_into_db($imei, $gps_fecha, $latitude, $longitude, $newInformacion);
-                    insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude,$newInformacion);
+                    insert_ubicacion_db($imei, $gps_fecha, $latitude, $longitude, $newInformacion);
                     actualizar_ruta_db($imei, $gps_fecha, $latitude, $longitude, $newInformacion);
                     if (floatval($speed) > 0) {
                         insert_conexion($imei, "Conectado", "Movimiento", $newInformacion);
                     } else {
-                        insert_conexion($imei, "Conectado", "Sin Movimiento",$newInformacion);
+                        insert_conexion($imei, "Conectado", "Sin Movimiento", $newInformacion);
                     }
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, 'https://corporacionminkay.com/mapas/nuevaUbicacion/' . $imei);
@@ -97,12 +93,9 @@ while (true) {
                     curl_exec($ch);
                     curl_close($ch);
                 }
-               
             }
-            
-
         }
-        if (strlen($data)==0) {
+        if (strlen($data) == 0) {
             $imei_gps = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['imei'];
             $data_gps = $Clientes[array_search($socket, array_column($Clientes, 'socket'))]['data'];
             unset($client_sockets[array_search($socket, $client_sockets)]);
@@ -415,7 +408,7 @@ function insert_location_into_db($imei, $gps_time, $latitude, $longitude, $caden
         if ($latitude != 0 || $longitude != 0) {
             foreach ($conn->query($query) as $fila) {
                 $velocidad_km = 0;
-                $velocidad_km = substr($cadena,38,2);
+                $velocidad_km = substr($cadena, 38, 2);
                 $velocidad_km = sprintf("%.2f", $velocidad_km);
                 $params = array(
                     ':placa'     => $fila['placa'],

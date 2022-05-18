@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,18 +22,7 @@ class Dispositivo extends Model
         'activo',
         'estado',
         'pago',
-        'sutran',
-        'km_inicial',
-        'km_actual',
-        'km_aumento',
         'estado_municipalidad'
     ];
     public $timestamps = true;
-    public function dispositivoUbicacion()
-    {
-        return $this->hasOne(DispositivoUbicacion::class,'imei','imei');
-    }
-    public function estadoDispositivo(){
-        return $this->hasOne(Estadodispositivo::class,'imei','imei');
-    }
 }

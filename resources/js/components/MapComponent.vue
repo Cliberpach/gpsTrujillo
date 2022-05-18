@@ -102,8 +102,9 @@
                                                     item.estado_dispositivo
                                                         .movimiento ==
                                                         'Movimiento' &&
-                                                    item.estado_dispositivo
-                                                        .estado == 'Conectado'
+                                                        item.estado_dispositivo
+                                                            .estado ==
+                                                            'Conectado'
                                                 "
                                                 class="circulo"
                                                 style="background-color: green"
@@ -113,8 +114,9 @@
                                                     item.estado_dispositivo
                                                         .movimiento ==
                                                         'Sin Movimiento' &&
-                                                    item.estado_dispositivo
-                                                        .estado == 'Conectado'
+                                                        item.estado_dispositivo
+                                                            .estado ==
+                                                            'Conectado'
                                                 "
                                                 class="circulo"
                                                 style="background-color: yellow"
@@ -123,7 +125,7 @@
                                                 v-if="
                                                     item.estado_dispositivo
                                                         .estado ==
-                                                    'Desconectado'
+                                                        'Desconectado'
                                                 "
                                                 class="circulo"
                                                 style="background-color: red"
@@ -167,86 +169,71 @@ export default {
             imei: null,
             dispositivos_data: [],
             marcadores_ruta: [],
-            polylines: [],
+            polylines: []
         };
     },
     mounted() {
         let $this = this;
-        // console.log(this.dispositivos);
         this.dispositivos_data = this.dispositivos;
         this.inicializarMapa();
-        $("#myInput").on("keyup", function () {
-            var value = $(this).val().toLowerCase();
-            $("#myTable tr").filter(function () {
+        $("#myInput").on("keyup", function() {
+            var value = $(this)
+                .val()
+                .toLowerCase();
+            $("#myTable tr").filter(function() {
                 $(this).toggle(
-                    $(this).text().toLowerCase().indexOf(value) > -1
+                    $(this)
+                        .text()
+                        .toLowerCase()
+                        .indexOf(value) > -1
                 );
             });
         });
-        Echo.channel("ubicacion").listen("NuevaUbicacionEvent", (e) => {
-            if ($this.user.id == 1) {
-                $this.actualizacion(e);
-            } else {
-                e.usuarios.forEach((value, index, array) => {
-                    if (value.user_id == $this.user.id) {
-                        $this.actualizacion(e);
-                    }
-                });
-            }
+        window.socketClient.on("newUbication" + this.user.id, data => {
+            $this.actualizacion(data);
+            // console.log(data)
         });
-        window.addEventListener("load", function () {
+        window.addEventListener("load", function() {
             $(".i-checks").iCheck({
                 checkboxClass: "icheckbox_square-green",
-                radioClass: "iradio_square-green",
+                radioClass: "iradio_square-green"
             });
         });
     },
     methods: {
         actualizacion(data) {
-            // console.log(data);
             let $this = this;
             let i = -1;
             let nuevo = [];
-            let f = this.dispositivos_data.filter(function (e, index) {
-                if (e.imei == data.ubicacion.imei) {
-                    i = index;
-                }
-                return e.imei == data.ubicacion.imei;
-            });
             this.dispositivos_data.forEach((value, index, array) => {
                 if (index == i) {
                     value.estado_dispositivo.movimiento =
-                        data.ubicacion.estado_dispositivo.movimiento;
+                        data.estado_dispositivo.movimiento;
                     value.estado_dispositivo.estado =
-                        data.ubicacion.estado_dispositivo.estado;
-                    value.dispositivo_ubicacion.velocidad =
-                        data.ubicacion.velocidad;
-                    value.dispositivo_ubicacion.fecha = data.ubicacion.fecha;
-                    nuevo.push(value);
-                } else {
-                    nuevo.push(value);
+                        data.estado_dispositivo.estado;
+                    value.dispositivo_ubicacion.velocidad = data.velocidad;
+                    value.dispositivo_ubicacion.fecha = data.fecha;
                 }
+                nuevo.push(value);
             });
-            var data_marker = this.markers.filter(
-                (e) => e.imei == data.ubicacion.imei
-            )[0];
+            var data_marker = this.markers.find(e => e.imei == data.imei);
             data_marker.marker.setPosition(
                 new google.maps.LatLng(
-                    parseFloat(data.ubicacion.lat),
-                    parseFloat(data.ubicacion.lng)
+                    parseFloat(data.lat),
+                    parseFloat(data.lng)
                 )
             );
             data_marker.info.setOptions({
                 position: new google.maps.LatLng(
-                    parseFloat(data.ubicacion.lat),
-                    parseFloat(data.ubicacion.lng)
-                ),
+                    parseFloat(data.lat),
+                    parseFloat(data.lng)
+                )
             });
             this.dispositivos_data = nuevo;
-            if (this.imei == data.ubicacion.imei) {
+            if (this.imei == data.imei) {
                 $this.eliminarMarcadores();
                 $this.eliminaruta();
-                data.ubicacion.recorrido.forEach((value, index, array) => {
+                data.recorrido.forEach((value, index, array) => {
                     let img = value.img;
                     img.scaledSize = new google.maps.Size(40, 40);
                     img.origin = new google.maps.Point(0, 0);
@@ -255,25 +242,25 @@ export default {
                             parseFloat(value.lat),
                             parseFloat(value.lng)
                         ),
-                        icon: value.img,
-                        title: value.placa,
+                        icon: img,
+                        title: value.placa
                     });
                     marker.setMap($this.map);
                     $this.marcadores_ruta.push(marker);
                 });
-                $this.drawRoute(data.ubicacion.recorrido_arreglo);
+                $this.drawRoute(data.recorrido_arreglo);
             }
         },
         inicializarMapa() {
             let $this = this;
             this.map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 12,
-                center: { lat: -8.1092027, lng: -79.0244529 },
+                center: { lat: -6.77137, lng: -79.84088 },
                 gestureHandling: "greedy",
                 zoomControl: false,
                 mapTypeControl: true,
                 streetViewControl: false,
-                fullscreenControl: false,
+                fullscreenControl: false
             });
             const carrera = document.getElementById("carrera");
             this.map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(
@@ -286,7 +273,7 @@ export default {
             const image = {
                 url: window.location.origin + "/img/gps.png",
                 // This marker is 20 pixels wide by 32 pixels high.
-                scaledSize: new google.maps.Size(50, 50),
+                scaledSize: new google.maps.Size(50, 50)
                 // The origin for this image is (0, 0).
             };
             this.dispositivos_data.forEach((value, index, array) => {
@@ -297,7 +284,7 @@ export default {
                             parseFloat(value.dispositivo_ubicacion.lng)
                         ),
                         icon: image,
-                        title: value.placa,
+                        title: value.placa
                     });
                     marker.setMap($this.map);
 
@@ -316,7 +303,7 @@ export default {
                         infoBoxClearance: new google.maps.Size(1, 1),
                         isHidden: false,
                         pane: "floatPane",
-                        enableEventPropagation: false,
+                        enableEventPropagation: false
                     };
                     myOptions.content =
                         '<div class="info-box-wrap"><div class="info-box-text-wrap">' +
@@ -327,47 +314,54 @@ export default {
                     $this.markers.push({
                         marker: marker,
                         imei: value.imei,
-                        info: ibLabel,
+                        info: ibLabel
                     });
                 }
             });
         },
-        zoom: async function (item) {
+        zoom: async function(item) {
             let $this = this;
-            var data = this.markers.filter((e) => e.imei == item.imei)[0];
-            var posicion = data.marker.getPosition();
-            if (data.marker.getMap() != null) {
-                this.map.setZoom(16);
-                this.map.setCenter(posicion);
+            var data = this.markers.find(e => e.imei == item.imei);
+            if (data != undefined) {
+                var posicion = data.marker.getPosition();
+                if (data.marker.getMap() != null) {
+                    this.map.setZoom(16);
+                    this.map.setCenter(posicion);
+                }
+                if (item.estado_dispositivo.estado != "Desconectado") {
+                    this.imei = item.imei;
+                    let datos = await axios.get(
+                        window.location.origin + "/gpsruta",
+                        {
+                            params: {
+                                imei: this.imei
+                            }
+                        }
+                    );
+                    this.eliminarMarcadores();
+                    this.eliminaruta();
+                    datos.data.recorrido.forEach((value, index, array) => {
+                        let img = value.img;
+                        img.scaledSize = new google.maps.Size(40, 40);
+                        img.origin = new google.maps.Point(0, 0);
+                        let marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(
+                                parseFloat(value.lat),
+                                parseFloat(value.lng)
+                            ),
+                            icon: value.img,
+                            title: value.placa
+                        });
+                        marker.setMap($this.map);
+                        this.marcadores_ruta.push(marker);
+                    });
+                    this.drawRoute(datos.data.data_recorrido);
+                }
             }
-            this.imei = item.imei;
-            let datos = await axios.get(window.location.origin + "/gpsruta", {
-                params: {
-                    imei: this.imei,
-                },
-            });
-            // console.log(datos)
-            this.eliminarMarcadores();
-            this.eliminaruta();
-            datos.data.recorrido.forEach((value, index, array) => {
-                let img = value.img;
-                img.scaledSize = new google.maps.Size(40, 40);
-                img.origin = new google.maps.Point(0, 0);
-                let marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(
-                        parseFloat(value.lat),
-                        parseFloat(value.lng)
-                    ),
-                    icon: value.img,
-                    title: value.placa,
-                });
-                marker.setMap($this.map);
-                this.marcadores_ruta.push(marker);
-            });
-            this.drawRoute(datos.data.data_recorrido);
+
             //console.log(datos);
         },
-        drawRoute: function (lineCoordinates) {
+        drawRoute: function(lineCoordinates) {
             var pointCount = lineCoordinates.length;
             var linePath = [];
             for (var i = 0; i < pointCount; i++) {
@@ -381,7 +375,7 @@ export default {
                 path: linePath,
                 strokeWeight: 7,
                 strokeColor: "#FF0000",
-                strokeOpacity: 0.8,
+                strokeOpacity: 0.8
             };
             var polyline = new google.maps.Polyline(lineOptions);
             polyline.setMap(this.map);
@@ -398,7 +392,7 @@ export default {
                 value.setMap(null);
             });
             this.polylines = [];
-        },
-    },
+        }
+    }
 };
 </script>

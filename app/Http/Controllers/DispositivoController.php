@@ -109,6 +109,9 @@ class DispositivoController extends Controller
         $dispositivo->km_inicial = $request->km_inicial;
         $dispositivo->km_actual = $request->km_inicial;
         $dispositivo->km_aumento = $request->km_aumento;
+        if ($request->get('estado_municipalidad')) {
+            $dispositivo->estado_municipalidad = $request->estado_municipalidad;
+        }
         $dispositivo->save();
         if ($request->alerta_tabla != "[]" && $request->alerta_tabla != "") {
 
@@ -224,6 +227,9 @@ class DispositivoController extends Controller
         $dispositivo->km_inicial = $request->km_inicial;
         $dispositivo->km_actual = $request->km_inicial;
         $dispositivo->km_aumento = $request->km_aumento;
+        if ($request->get('estado_municipalidad')) {
+            $dispositivo->estado_municipalidad = $request->estado_municipalidad;
+        }
         $dispositivo->update();
 
         if ($request->alerta_tabla != "[]" && $request->alerta_tabla != "") {
@@ -578,8 +584,8 @@ class DispositivoController extends Controller
                     $vkm = $velocidad_km;
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";
-                } elseif($fila[$i]->nombre == "CONCOX") {
-                    $velocidad_km = hexdec(substr($fila[$i]->cadena,38,2));
+                } elseif ($fila[$i]->nombre == "CONCOX") {
+                    $velocidad_km = hexdec(substr($fila[$i]->cadena, 38, 2));
                     $vkm = $velocidad_km;
                     $estado = ($velocidad_km <= 0) ? $estado : "En Movimiento";
                     $velocidad_km = sprintf("%.2f", $velocidad_km) . " kph";

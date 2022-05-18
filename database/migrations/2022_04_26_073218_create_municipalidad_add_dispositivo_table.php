@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAddKilometrajeTable extends Migration
+class CreateMunicipalidadAddDispositivoTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class CreateAddKilometrajeTable extends Migration
     public function up()
     {
         Schema::table('dispositivo', function (Blueprint $table) {
-            $table->string('km_inicial')->nullable();
-            $table->string('km_actual')->nullable();
-            $table->string('km_aumento')->nullable();
+            $table->enum('estado_municipalidad', ['ENVIAR', 'NO ENVIAR'])->default('NO ENVIAR');
         });
     }
 
@@ -27,5 +25,6 @@ class CreateAddKilometrajeTable extends Migration
      */
     public function down()
     {
+        // Schema::dropIfExists('dispositivo');
     }
 }
