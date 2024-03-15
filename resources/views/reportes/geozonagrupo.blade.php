@@ -690,7 +690,7 @@
                             returnValue[k].datos[i].lat + ',' +
                             returnValue[k].datos[i].lng + '&key={{gpsKey()}}');
                             direccion = direccion.data.results[0].address_components[1].long_name + " " + direccion.data.results[0]
-                            .address_components[0].long_name;*/ 
+                            .address_components[0].long_name;*/
                     }
 
 

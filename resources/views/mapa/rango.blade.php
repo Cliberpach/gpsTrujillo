@@ -18,13 +18,13 @@
     <form action="{{ route('mapas.agregar_rango') }}" method="POST">
     @csrf
     <div class="row">
-  
+
         @csrf
 
         <div class="col-lg-12">
         <div class="ibox ">
             <div class="ibox-content">
-               
+
                   <div class="row">
                     <div class="col-lg-7">
                     <div class="card text-center">
@@ -33,7 +33,7 @@
                             </div>
                             <div class="card-body">
                                 <div id="map" style="height:500px;">
-                                </div>         
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                         <div class="card text-center">
                                     <div class="card-header bg-primary">
                                         Posiciones
-                               
+
                                     </div>
                                 <div class="card-body" >
                                 <label class="required">Posicion</label>
@@ -66,14 +66,14 @@
                                  </div>
 
                                 </div>
-                     
-                             
+
+
                                 </div>
-                        
-                      
-                        
-                  </div>            
-                
+
+
+
+                  </div>
+
             </div>
         </div>
         <input type="hidden" name="posiciones_guardar" id="posiciones_guardar">
@@ -90,7 +90,7 @@
 <!-- DataTable -->
 <link href="{{asset('Inspinia/css/plugins/dataTables/datatables.min.css')}}" rel="stylesheet">
 <link href="{{ asset('Inspinia/css/plugins/select2/select2.min.css') }}" rel="stylesheet">
-@endpush 
+@endpush
 @push('scripts')
 <!-- DataTable -->
 <script src="{{ asset('Inspinia/js/plugins/select2/select2.full.min.js') }}"></script>
@@ -100,15 +100,15 @@
 <script>
 $(document).ready(function()
         {
-          
+
 $(".select2_form").select2({
                 placeholder: "SELECCIONAR",
                 allowClear: true,
                 height: '200px',
                 width: '100%',
-            }); 
+            });
 
-        
+
         });
     var map;
     var markers=[];
@@ -123,14 +123,14 @@ $(".select2_form").select2({
         $("#lat").removeAttr("readonly");
         $("#lng").removeAttr("readonly");
        }
-       else 
+       else
        {
         $("#lat").val(" ");
        $("#lng").val(" ");
        $("#lat").prop('readonly', true);
        $("#lng").prop('readonly', true);
        }
-     
+
     }
     function modificar()
     {
@@ -142,11 +142,11 @@ $(".select2_form").select2({
             markers[cbnposicion].setPosition(new google.maps.LatLng(parseFloat(lat),parseFloat(lng)));
             generar();
         }
-        
-      
+
+
 
     }
- 
+
     function initMap() {
           polygon = new google.maps.Polygon();
           map = new google.maps.Map(document.getElementById("map"), {
@@ -154,10 +154,10 @@ $(".select2_form").select2({
                                 center:{ lat: -8.11599, lng: -79.02998 },
                                   gestureHandling: "greedy",
                                   });
-           
+
            google.maps.event.addListener(map, 'click', function(event) {
                     startLocation = event.latLng;
-                   
+
                         var marker=  new google.maps.Marker({
                             position: startLocation,
                             map:map,
@@ -165,14 +165,14 @@ $(".select2_form").select2({
                             });
                             google.maps.event.addListener(marker, 'dragend', function() {
                                   var posicion = movimiento(this);
-                                   generar();                       
+                                   generar();
                             });
                             markers.push(marker);
                             generar();
                             agregar();
-                            
-                    
-                 
+
+
+
           });
 
           if($('#posiciones_gps')!=undefined)
@@ -187,7 +187,7 @@ $(".select2_form").select2({
                             });
                             google.maps.event.addListener(marker, 'dragend', function() {
                                   var posicion = movimiento(this);
-                                   generar();                           
+                                   generar();
                             });
                             markers.push(marker);
                             generar();
@@ -195,7 +195,7 @@ $(".select2_form").select2({
                             guardar();
             }
           }
-     
+
 	}
 
     function movimiento(marker)
@@ -205,7 +205,7 @@ $(".select2_form").select2({
             if(markers[i]===marker)
             {
                 posicion=i;
-                
+
             }
         }
         return posicion;
@@ -237,7 +237,7 @@ $(".select2_form").select2({
             areaCoordinates[i][0] , areaCoordinates[i][1]);
             areaPath.push(tempLatLng);
         }
-        var polygonOptions = 
+        var polygonOptions =
         {
             paths: areaPath,
             strokeColor: '#FFFF00',
@@ -246,11 +246,11 @@ $(".select2_form").select2({
             fillColor: '#FFFF00',
             fillOpacity: 0.20
         }
-        
+
         polygon.setOptions(polygonOptions);
         polygon.setMap(map);
         guardar();
-        
+
     }
     function guardar()
     {
