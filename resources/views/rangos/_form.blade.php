@@ -1,7 +1,7 @@
 <div class="wrapper wrapper-content animated fadeIn" id="contenedor" >
     <form class="wizard-big formulario" action="{{ $action }}" method="POST" id="form_registrar_rango">
         @csrf
-        <h1>Contrato Geocerca</h1> 
+        <h1>Contrato Geocerca</h1>
         @if (!empty($put))
             <input type="hidden" name="_method" value="PUT">
         @endif
@@ -16,12 +16,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div id="map" style="height:500px;">
-                                    </div>         
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-5">
-                            
+
                             <div class="card text-center">
                                         <div class="card-header bg-primary">
                                             Posiciones
@@ -51,7 +51,7 @@
                                      </div>
                                     </div>
                                     </div>
-                      </div>            
+                      </div>
                 </div>
             </div>
             <input type="hidden" name="posiciones_guardar" id="posiciones_guardar">
@@ -142,7 +142,7 @@
                         render: function(data, type, row) {
                                 return  "<div class='btn-group'>" +
                                         "<a class='btn btn-sm btn-warning btn-edit' style='color:white'>"+ "<i class='fa fa-pencil'></i>"+"</a>" +
-                                        "<a class='btn btn-sm btn-danger btn-delete' style='color:white'>"+"<i class='fa fa-trash'></i>"+"</a>"+ 
+                                        "<a class='btn btn-sm btn-danger btn-delete' style='color:white'>"+"<i class='fa fa-trash'></i>"+"</a>"+
                                         "</div>";
                         }
                     },
@@ -211,16 +211,16 @@
                 return true;
             },
             onFinished: function (event, currentIndex)
-            {     
+            {
                 var nombre=$("#nombre").val();
 
                if(markers.length==0 || nombre.length==0)
                 {
-                   toastr.error('Complete la información de los campos obligatorios (*)','Error');  
+                   toastr.error('Complete la información de los campos obligatorios (*)','Error');
                 }
                 else if(markers.length<4)
                 {
-                    toastr.error('por lo menos son 4 posiciones (*)','Error'); 
+                    toastr.error('por lo menos son 4 posiciones (*)','Error');
                 }
                 else
                 {
@@ -233,19 +233,19 @@
                  form.submit();*/
             }
         });
-           
+
             function initMap() {
           polygon = new google.maps.Polygon();
           map = new google.maps.Map(document.getElementById("map"), {
-                                  zoom: 12,
-                                  center: { lat: -8.1092027, lng: -79.0244529 },
+                        zoom:9,
+                        center:{ lat: -8.11599, lng: -79.02998 },
                                   gestureHandling: "greedy",
                                   draggableCursor: "default"
                                   });
-           
+
            google.maps.event.addListener(map, 'click', function(event) {
                     startLocation = event.latLng;
-                   
+
                         var marker=  new google.maps.Marker({
                             position: startLocation,
                             map:map,
@@ -253,11 +253,11 @@
                             });
                             google.maps.event.addListener(marker, 'dragend', function() {
                                   var posicion = movimiento(this);
-                                   generar();                       
+                                   generar();
                             });
                             markers.push(marker);
                             generar();
-                            agregar();       
+                            agregar();
           });
           if($('#posiciones_gps').val()!=undefined)
           {
@@ -272,7 +272,7 @@
                             });
                             google.maps.event.addListener(marker, 'dragend', function() {
                                   var posicion = movimiento(this);
-                                   generar();                           
+                                   generar();
                             });
                             markers.push(marker);
                             generar();
@@ -292,14 +292,14 @@
         $("#lat").removeAttr("readonly");
         $("#lng").removeAttr("readonly");
        }
-       else 
+       else
        {
         $("#lat").val(" ");
        $("#lng").val(" ");
        $("#lat").prop('readonly', true);
        $("#lng").prop('readonly', true);
        }
-     
+
     }
     function modificar()
     {
@@ -311,8 +311,8 @@
             markers[cbnposicion].setPosition(new google.maps.LatLng(parseFloat(lat),parseFloat(lng)));
             generar();
         }
-        
-      
+
+
 
     }
     function movimiento(marker)
@@ -322,7 +322,7 @@
             if(markers[i]===marker)
             {
                 posicion=i;
-                
+
             }
         }
         return posicion;
@@ -354,7 +354,7 @@
             areaCoordinates[i][0] , areaCoordinates[i][1]);
             areaPath.push(tempLatLng);
         }
-        var polygonOptions = 
+        var polygonOptions =
         {
             paths: areaPath,
             strokeColor: '#FFFF00',
@@ -363,11 +363,11 @@
             fillColor: '#FFFF00',
             fillOpacity: 0.20
         }
-        
+
         polygon.setOptions(polygonOptions);
         polygon.setMap(map);
         guardar();
-        
+
     }
     function guardar()
     {
