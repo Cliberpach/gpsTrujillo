@@ -254,8 +254,10 @@ export default {
         inicializarMapa() {
             let $this = this;
             this.map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
-                center: { lat: -6.77137, lng: -79.84088 },
+                /*zoom: 12,
+                center: { lat: -6.77137, lng: -79.84088 },*/
+                zoom:20,
+                center:{ lat: -8.11599, lng: -79.02998 },
                 gestureHandling: "greedy",
                 zoomControl: false,
                 mapTypeControl: true,
