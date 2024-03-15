@@ -2182,8 +2182,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     inicializarMapa: function inicializarMapa() {
       var $this = this;
       this.map = new google.maps.Map(document.getElementById("map"), {
-        zoom:9,
-        center:{ lat: -8.11599, lng: -79.02998 },
+        zoom: 9,
+        center:{ 
+            lat: -8.11599,
+             lng: -79.02998
+             },
         gestureHandling: "greedy",
         zoomControl: false,
         mapTypeControl: true,
