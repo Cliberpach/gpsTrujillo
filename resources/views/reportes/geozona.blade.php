@@ -349,21 +349,15 @@
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
-                center: {
-                    lat: -8.1092027,
-                    lng: -79.0244529
-                },
+                zoom:9,
+                center:{ lat: -8.11599, lng: -79.02998 },
                 gestureHandling: "greedy",
                 mapTypeControl: false,
                 fullscreenControl: false
             });
             map2 = new google.maps.Map(document.getElementById("map2"), {
-                zoom: 12,
-                center: {
-                    lat: -8.1092027,
-                    lng: -79.0244529
-                },
+                zoom:9,
+                center:{ lat: -8.11599, lng: -79.02998 },
                 gestureHandling: "greedy",
                 mapTypeControl: false,
                 fullscreenControl: false
