@@ -1,5 +1,5 @@
 map = new google.maps.Map(document.getElementById("map"), {
-    zoom:9,
+    zoom: 9,
     center:{ lat: -8.11599, lng: -79.02998 },
     gestureHandling: "greedy",
     zoomControl: false,
