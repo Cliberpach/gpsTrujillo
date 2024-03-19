@@ -562,7 +562,7 @@
                 var direccion = returnValue[i].direccion;
                 if (returnValue[i].direccion == null) {
 
-                    direccion=await axios.get('https://apis.siscomfac.com/api/posicion?lat1='+returnValue[i].lat+'&lng='+returnValue[i].lng);
+                    /*direccion=await axios.get('https://apis.siscomfac.com/api/posicion?lat1='+returnValue[i].lat+'&lng='+returnValue[i].lng);*/
                     direccion==null
                     if(direccion.data[0].direccion==null){
                         try{

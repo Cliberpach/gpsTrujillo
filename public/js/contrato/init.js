@@ -1,7 +1,7 @@
 
 $(document).ready(function() {
     map = new google.maps.Map(document.getElementById("map"),{
-        zoom: 9,
+        zoom: 5,
         center:{
                 lat: -8.11599,
                 lng: -79.02998
@@ -11,7 +11,7 @@ $(document).ready(function() {
     });
     console.log(map);
     map_geocerca = new google.maps.Map(document.getElementById("map_geocerca"), {
-        zoom:9,
+        zoom:5,
         center:{ lat: -8.11599, lng: -79.02998 },
         gestureHandling: "greedy",
         draggableCursor: "default"
