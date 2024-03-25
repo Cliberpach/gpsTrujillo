@@ -571,7 +571,7 @@
                             returnValue[i].lng + '&key=AIzaSyB3oElOKZsIKTL2eB8peIQCTm6P77bJO1Q');
 
 
-                            var json_direccion=JSON.stringify(direccion.data).toString()
+                           /* var json_direccion=JSON.stringify(direccion.data).toString()
                             direccion = direccion.data.results[0].address_components[1].long_name + " " + direccion.data.results[0].address_components[0].long_name;
                             axios.post('https://apis.siscomfac.com/api/posicion',
 
@@ -589,7 +589,7 @@
                                 })
                                 .then(function () {
                                     // always executed
-                                })
+                                })*/
                         }
                         catch(error)
                         {
